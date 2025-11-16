@@ -1,34 +1,23 @@
-import { NavLink } from "react-router-dom";
-import { FiHome, FiBox, FiShoppingCart } from "react-icons/fi";
+import { Link } from "react-router-dom";
 
-export default function Sidebar() {
-  const links = [
-    { to: "/admin/dashboard", icon: <FiHome />, label: "Dashboard" },
-    { to: "/admin/products", icon: <FiBox />, label: "Products" },
-    { to: "/admin/orders", icon: <FiShoppingCart />, label: "Orders" },
-  ];
-
+const Sidebar = () => {
   return (
-    <aside className="w-60 bg-white border-r shadow-sm flex flex-col">
-      <div className="p-4 text-xl font-bold border-b">Admin Panel</div>
-      <nav className="flex-1 p-4">
-        {links.map(({ to, icon, label }) => (
-          <NavLink
-            key={to}
-            to={to}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2 rounded-md mb-2 ${
-                isActive
-                  ? "bg-blue-500 text-white"
-                  : "text-gray-700 hover:bg-gray-200"
-              }`
-            }
-          >
-            {icon}
-            {label}
-          </NavLink>
-        ))}
-      </nav>
-    </aside>
+    <div className="w-60 bg-white shadow h-screen p-5 flex flex-col gap-4">
+      <h1 className="text-lg font-bold mb-4">Admin Panel</h1>
+
+      <Link to="/admin/dashboard" className="hover:text-blue-600">
+        Dashboard
+      </Link>
+
+      <Link to="/admin/products" className="hover:text-blue-600">
+        Products
+      </Link>
+
+      <Link to="/admin/orders" className="hover:text-blue-600">
+        Orders
+      </Link>
+    </div>
   );
-}
+};
+
+export default Sidebar;

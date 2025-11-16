@@ -1,42 +1,56 @@
-import { Bar } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement } from "chart.js";
+import React from "react";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  LineElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+} from "chart.js";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement);
+ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
 
-export default function Dashboard() {
+const Dashboard = () => {
   const data = {
-    labels: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4"],
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
     datasets: [
       {
-        label: "Doanh thu (triệu VND)",
-        data: [12, 19, 8, 15],
-        backgroundColor: "rgba(59,130,246,0.7)",
+        label: "Revenue",
+        data: [1200, 1900, 900, 1500, 2200, 2600],
+        borderWidth: 2,
       },
     ],
   };
 
   return (
-    <div>
-      <h1 className="text-2xl font-semibold mb-6">Dashboard</h1>
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        <Card title="Tổng sản phẩm" value="128" />
-        <Card title="Tổng đơn hàng" value="54" />
-        <Card title="Doanh thu" value="39.2M" />
+    <div className="p-6 w-full">
+      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+
+      {}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+        <div className="p-5 bg-white rounded-lg shadow flex flex-col">
+          <span className="text-gray-600 text-sm">Total Revenue</span>
+          <span className="text-2xl font-bold">$12,450</span>
+        </div>
+
+        <div className="p-5 bg-white rounded-lg shadow flex flex-col">
+          <span className="text-gray-600 text-sm">Orders</span>
+          <span className="text-2xl font-bold">326</span>
+        </div>
+
+        <div className="p-5 bg-white rounded-lg shadow flex flex-col">
+          <span className="text-gray-600 text-sm">Products</span>
+          <span className="text-2xl font-bold">58</span>
+        </div>
       </div>
 
-      <div className="bg-white p-4 rounded-lg shadow">
-        <h2 className="text-lg font-medium mb-3">Biểu đồ doanh thu</h2>
-        <Bar data={data} />
+      {}
+      <div className="bg-white p-6 rounded-lg shadow">
+        <h2 className="text-lg font-semibold mb-3">Revenue (6 months)</h2>
+        <Line data={data} />
       </div>
     </div>
   );
-}
+};
 
-function Card({ title, value }) {
-  return (
-    <div className="bg-white rounded-lg shadow p-4 text-center">
-      <p className="text-gray-600">{title}</p>
-      <p className="text-2xl font-semibold mt-2">{value}</p>
-    </div>
-  );
-}
+export default Dashboard;
