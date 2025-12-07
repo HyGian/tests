@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 import React, { createContext, useState, useEffect } from 'react';
 import API from './api';
 
@@ -125,66 +125,3 @@ export const UserContextProvider = ({ children }) => {
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
-=======
-import { createContext, useEffect, useState } from "react";
-import API from "../api";
-
-export const UserContext = createContext();
-
-export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [cart, setCart] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem("cart")) || [];
-    } catch {
-      return [];
-    }
-  });
-
-  const token = localStorage.getItem("token");
-
-  useEffect(() => {
-    if (!token) return;
-    (async () => {
-      try {
-        const res = await API.get("/users/me");
-        setUser(res.data);
-      } catch {
-        setUser(null);
-      }
-    })();
-  }, [token]);
-
-  const login = (token) => {
-    localStorage.setItem("token", token);
-    window.location.reload();
-  };
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    setUser(null);
-  };
-
-  const addToCart = (product, qty = 1) => {
-    const exists = cart.find((x) => x._id === product._id);
-    let newCart;
-    if (exists) {
-      newCart = cart.map((i) =>
-        i._id === product._id ? { ...i, qty: i.qty + qty } : i
-      );
-    } else {
-      newCart = [...cart, { ...product, qty }];
-    }
-    setCart(newCart);
-    localStorage.setItem("cart", JSON.stringify(newCart));
-  };
-
-  return (
-    <UserContext.Provider
-      value={{ user, login, logout, cart, addToCart }}
-    >
-      {children}
-    </UserContext.Provider>
-  );
->>>>>>> 7bffe7c (Cập nhập User fortend)
-};
