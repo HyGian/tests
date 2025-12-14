@@ -12,7 +12,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4 product-grid">
       {products.map((p) => (
         <ProductCard key={p._id} product={p} onAdd={addToCart} />
       ))}

@@ -14,6 +14,7 @@ import Dashboard from '../admin/Dashboard';
 import Products from '../admin/Products';
 import Orders from '../admin/Orders';
 import './styles/global.css';
+import './styles/responsive.css';
 
 function App() {
   return (

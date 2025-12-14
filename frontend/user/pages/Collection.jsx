@@ -12,7 +12,7 @@ export default function Collection() {
   }, []);
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 p-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-4 p-4 gap-4 product-grid">
       {products.map((p) => (
         <ProductCard key={p._id} product={p} onAdd={addToCart} />
       ))}
