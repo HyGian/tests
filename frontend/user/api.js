@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import axios from 'axios';
 
 // Create axios instance with base configuration
@@ -13,6 +12,9 @@ const API = axios.create({
 API.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
+        if (config.data instanceof FormData) {
+            delete config.headers['Content-Type'];
+        }
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -36,18 +38,5 @@ API.interceptors.response.use(
         return Promise.reject(error);
     }
 );
-=======
-import axios from "axios";
-
-const API = axios.create({
-  baseURL: "http://localhost:5000/api",
-});
-
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
->>>>>>> 7bffe7c (Cập nhập User fortend)
 
 export default API;

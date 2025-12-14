@@ -5,10 +5,14 @@ import Navbar from './component/Navbar';
 import ProtectedRoute from './component/ProtectedRoute';
 import Home from './pages/Home';
 import Collection from './pages/Collection';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
 import Profile from './pages/Profile';
 import ProfileEdit from './pages/ProfileEdit';
+import AdminLayout from '../admin/Adminlayout';
+import Dashboard from '../admin/Dashboard';
+import Products from '../admin/Products';
+import Orders from '../admin/Orders';
 import './styles/global.css';
 
 function App() {
@@ -37,6 +41,14 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="products" element={<Products />} />
+            <Route path="orders" element={<Orders />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </UserContextProvider>

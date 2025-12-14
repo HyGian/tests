@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { UserContext } from '../UserContext';
@@ -47,35 +46,6 @@ export default function Navbar() {
             </>
           )}
         </div>
-=======
-import { Link } from "react-router-dom";
-import { UserContext } from "../contexts/UserContext";
-import { useContext } from "react";
-
-export default function Navbar() {
-  const { user, logout, cart } = useContext(UserContext);
-
-  return (
-    <nav className="p-4 flex justify-between border-b">
-      <Link to="/" className="font-bold text-lg">MyShop</Link>
-
-      <div className="flex gap-4 items-center">
-        <Link to="/collection">Sản phẩm</Link>
-
-        <Link to="/cart">Giỏ hàng ({cart.length})</Link>
-
-        {user ? (
-          <>
-            <Link to="/profile">{user.name}</Link>
-            <button onClick={logout} className="text-red-500">Đăng xuất</button>
-          </>
-        ) : (
-          <>
-            <Link to="/auth/login">Đăng nhập</Link>
-            <Link to="/auth/register">Đăng ký</Link>
-          </>
-        )}
->>>>>>> 7bffe7c (Cập nhập User fortend)
       </div>
     </nav>
   );

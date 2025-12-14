@@ -1,0 +1,23 @@
+{
+    "development": {
+        "username": "nguyenthithutam",
+        "password": null,
+        "database": "ecommerce",
+        "host": "127.0.0.1",
+        "dialect": "postgres"
+    },
+    "test": {
+        "username": "nguyenthithutam",
+        "password": null,
+        "database": "ecommerce_test",
+        "host": "127.0.0.1",
+        "dialect": "postgres"
+    },
+    "production": {
+        "username": "nguyenthithutam",
+        "password": null,
+        "database": "ecommerce_prod",
+        "host": "127.0.0.1",
+        "dialect": "postgres"
+    }
+}
