@@ -1,23 +1,20 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
-module.exports = (sequelize, DataTypes) => {
-  class Category extends Model {
-    static associate(models) {
-      Category.hasOne(models.Product, {
-        foreignKey: 'categoryId',
-         as: 'products'
-    });
+const mongoose = require('mongoose');
+
+const categorySchema = new mongoose.Schema({
+    code: {
+        type: String,
+        required: true
+    },
+    header: {
+        type: String,
+        required: true
+    },
+    description: {
+        type: String,
+        default: ''
     }
-  }
-  Category.init({
-    code: DataTypes.STRING,
-    header: DataTypes.STRING,
-    description: DataTypes.TEXT,
-  }, {
-    sequelize,
-    modelName: 'Category',
-  });
-  return Category;
-};
+}, {
+    timestamps: true
+});
+
+module.exports = mongoose.model('Category', categorySchema);

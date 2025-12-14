@@ -1,60 +1,90 @@
-import * as services from '../services/payment'
+const paymentService = require('../services/payment');
 
-export const checkout = async(req, res) =>{
-    const { amount} = req.body;
-    if (!amount || amount <= 0) {
-        return res.status(400).json({ error: "Invalid amount." });
+const checkout = async (req, res) => {
+    const { amount } = req.body;
+
+    if (typeof amount !== 'number' || amount <= 0) {
+        return res.status(400).json({
+            err: 1,
+            msg: 'Invalid amount'
+        });
     }
+
     try {
-        const response = await services.createCheckoutSession( req.body)
-        // console.log(response.response.url)
-        res.status(200).json(response.response);
+        const response = await paymentService.createCheckoutSession(req.body);
+        return res.status(201).json(response);
     } catch (error) {
         return res.status(500).json({
-            err:-1,
-            msg: 'Faild at payment controller: '+error
-        })
+            err: -1,
+            msg: 'Failed at payment controller',
+            error: error.message
+        });
     }
-} 
-export const exportPayments = async(req, res) =>{
+};
+
+const exportPayments = async (req, res) => {
     try {
-        const response = await services.exportPayments()
-        res.status(200).json(response);
+        const response = await paymentService.exportPayments();
+        return res.status(200).json(response);
     } catch (error) {
         return res.status(500).json({
-            err:-1,
-            msg: 'Faild at payment controller: '+error
-        })
+            err: -1,
+            msg: 'Failed at payment controller',
+            error: error.message
+        });
     }
-} 
-export const paymentIntentId = async(req, res) =>{
-    const sessionId = req.params.sessionId;
+};
+
+const getPaymentIntentId = async (req, res) => {
+    const { sessionId } = req.params;
 
     if (!sessionId) {
-        return res.status(400).json({ error: "Session ID is required." });
+        return res.status(400).json({
+            err: 1,
+            msg: 'Session ID is required'
+        });
     }
+
     try {
-        const response = await services.getPaymentIdServices(sessionId)
-        res.status(200).json(response);
+        const response = await paymentService.getPaymentIdServices(sessionId);
+        return res.status(200).json(response);
     } catch (error) {
         return res.status(500).json({
-            err:-1,
-            msg: 'Faild at payment controller: '+error
-        })
+            err: -1,
+            msg: 'Failed at payment controller',
+            error: error.message
+        });
     }
-} 
-export const RefundPayment = async(req, res) =>{
+};
+
+/**
+ * @desc Refund payment by postal code
+ */
+const refundPayment = async (req, res) => {
+    const { id: postalCode } = req.params;
+
+    if (!postalCode) {
+        return res.status(400).json({
+            err: 1,
+            msg: 'Postal code is required'
+        });
+    }
+
     try {
-        const postalCode = req.params.id
-        if(!postalCode){
-            return res.status(400).json({ error: "Invalid" });
-        }
-        const response = await services.PostRefundPayment(postalCode)
-        res.status(200).json(response);
+        const response = await paymentService.PostRefundPayment(postalCode);
+        return res.status(200).json(response);
     } catch (error) {
         return res.status(500).json({
-            err:-1,
-            msg: 'Faild at payment controller: '+error
-        })
+            err: -1,
+            msg: 'Failed at payment controller',
+            error: error.message
+        });
     }
-}
+};
+
+module.exports = {
+    checkout,
+    exportPayments,
+    getPaymentIntentId,
+    refundPayment
+};

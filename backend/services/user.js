@@ -1,69 +1,80 @@
-import db from '../models'
+const User = require('../models/user');
+const CustomerSupport = require('../models/customersupport');
 
-export const getContact = (payload,id) => new Promise(async (resolve, reject) => {
+const getContact = (payload, userId) => new Promise(async (resolve, reject) => {
     try {
-      const existingRecord = await db.CustomerSupport.findOne({
-        where: { id },
-      });
+        const existingRecord = await CustomerSupport.findOne({ user: userId });
 
-      let response;
+        let response;
 
-      if (existingRecord) {
-        response = await existingRecord.update(payload);
-        resolve({
-          err: 0,
-          msg: 'Customer support record updated successfully.',
+        if (existingRecord) {
+            response = await CustomerSupport.findByIdAndUpdate(
+                existingRecord._id,
+                payload,
+                { new: true, runValidators: true }
+            );
+            
+            resolve({
+                err: 0,
+                msg: 'Customer support record updated successfully.',
+                data: response
+            });
+        } else {
+            response = await CustomerSupport.create({
+                ...payload,
+                user: userId
+            });
+            
+            resolve({
+                err: 0,
+                msg: 'Customer support record created successfully.',
+                data: response
+            });
+        }
+    } catch (error) {
+        reject({
+            err: 1,
+            msg: 'An error occurred while creating or updating the customer support record.',
+            error: error.message
         });
-      } else {
-        // Nếu không tồn tại, tạo bản ghi mới
-        response = await db.CustomerSupport.create({
-            ...payload,
-            accountId, // Thêm accountId vào bản ghi
-          });
+    }
+});
+
+const getOne = (id) => new Promise(async (resolve, reject) => {
+    try {
+        const user = await User.findById(id)
+            .select('-password');
+
         resolve({
-          err: 0,
-          msg: 'Customer support record created successfully.',
-          data: response,
+            err: user ? 0 : 1,
+            msg: user ? 'OK' : 'User not found.',
+            response: user
         });
-      }
     } catch (error) {
-      reject({
-        err: 1,
-        msg: 'An error occurred while creating or updating the customer support record.',
-        error: error.message || error,
-      });
+        reject(error);
     }
-  });
+});
 
-export const getOne = (id) => new Promise(async (resolve, reject) => {
+const updateuser = (payload, id) => new Promise(async (resolve, reject) => {
     try {
-        const response = await db.User.findOne({
-            where: { id },
-            raw: true,
-            attributes: {
-                exclude: ['password']
-            }
-        })
-        resolve({
-            err: response ? 0 : 1,
-            msg: response ? 'OK' : 'Failed to get provinces.',
-            response
-        })
-    } catch (error) {
-        reject(error)
-    }
-})
+        const updatedUser = await User.findByIdAndUpdate(
+            id,
+            payload,
+            { new: true, runValidators: true }
+        ).select('-password');
 
-export const updateuser = (payload, id) => new Promise(async (resolve, reject) => {
-    try {
-        const response = await db.User.update(payload, {
-            where: { id }
-        })
         resolve({
-            err: response[0] > 0 ? 0 : 1,
-            msg: response[0] > 0 ? 'Update ' : 'Failed to update user.',
-        })
+            err: updatedUser ? 0 : 1,
+            msg: updatedUser ? 'User updated successfully.' : 'Failed to update user.',
+            response: updatedUser
+        });
     } catch (error) {
-        reject(error)
+        reject(error);
     }
-})
+});
+
+module.exports = {
+    getContact,
+    getOne,
+    updateuser
+};

@@ -1,49 +1,79 @@
-import db from '../models'
-import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
-import { v4 } from 'uuid'
-require('dotenv').config()
+const User = require('../models/user');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
-const hashPassword = password => bcrypt.hashSync(password, bcrypt.genSaltSync(12))
-
-export const registerService = ({ phone, password, name}) => new Promise(async (resolve, reject) => {
+const registerService = async ({ phone, password, name }) => {
     try {
-        const response = await db.User.findOrCreate({
-            where: { phone, name },
-            defaults: {
-                phone,
-                name,
-                password: hashPassword(password),
-                id: v4()
-            }
-        })
-        const token = response[1] && jwt.sign({ id: response[0].id, phone: response[0].phone}, process.env.SECRET_KEY, { expiresIn: '2d' })
-        resolve({
-            err: token ? 0 : 2,
-            msg: token ? 'Register is successfully !' : 'please check phone number or name has been aldready used !',
-            token: token || null
-        })
+        const existingUser = await User.findOne({ phone });
+        if (existingUser) {
+            return {
+                err: 2,
+                msg: 'Phone number has been already used!',
+                token: null
+            };
+        }
 
+        const newUser = new User({
+            phone,
+            name,
+            password
+        });
+
+        await newUser.save();
+
+        const token = jwt.sign(
+            { id: newUser._id, phone: newUser.phone },
+            process.env.SECRET_KEY,
+            { expiresIn: '2d' }
+        );
+
+        return {
+            err: 0,
+            msg: 'Register is successfully!',
+            token
+        };
     } catch (error) {
-        reject(error)
+        throw error;
     }
-})
+};
 
-export const loginService = ({ phone, password }) => new Promise(async (resolve, reject) => {
+const loginService = async ({ phone, password }) => {
     try {
-        const response = await db.User.findOne({
-            where: { phone },
-            raw: true
-        })
-        const isCorrectPassword = response && bcrypt.compareSync(password, response.password)
-        const token = isCorrectPassword && jwt.sign({ id: response.id, phone: response.phone }, process.env.SECRET_KEY, { expiresIn: '2d' })
-        resolve({
-            err: token ? 0 : 2,
-            msg: token ? 'Login is successfully !' : response ? 'Password is wrong !' : 'Phone number not found !',
-            token: token || null
-        })
+        const user = await User.findOne({ phone });
+        if (!user) {
+            return {
+                err: 2,
+                msg: 'Phone number not found!',
+                token: null
+            };
+        }
 
+        const isCorrectPassword = await user.comparePassword(password);
+        if (!isCorrectPassword) {
+            return {
+                err: 2,
+                msg: 'Password is wrong!',
+                token: null
+            };
+        }
+
+        const token = jwt.sign(
+            { id: user._id, phone: user.phone },
+            process.env.SECRET_KEY,
+            { expiresIn: '2d' }
+        );
+
+        return {
+            err: 0,
+            msg: 'Login is successfully!',
+            token
+        };
     } catch (error) {
-        reject(error)
+        throw error;
     }
-})
+};
+
+module.exports = {
+    registerService,
+    loginService
+};

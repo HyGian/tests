@@ -1,8 +1,8 @@
-import expess from 'express'
-import * as controller from '../controllers/category'
+const express = require('express');
+const categoryController = require('../controllers/category');
 
-const router = expess.Router()
+const router = express.Router();
 
-router.get('/all', controller.getCategories)
+router.get('/all', categoryController.getCategories);
 
-export default router
+module.exports = router;

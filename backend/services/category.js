@@ -1,20 +1,21 @@
-import db from '../models'
+const Category = require('../models/category');
 
-//GET ALL CATEGORY
-export const getCategoriesSerivce = () => new Promise(async (resolve, reject) => {
+const getCategoriesSerivce = () => new Promise(async (resolve, reject) => {
     try {
-        const response = await db.Category.findAll({
-            raw: true,
-            //attributes: { exclude: ['description', 'createdAt', 'updatedAt'] } remove attributes 
-            attributes:['code', 'header'],
-            where: {header:['NAM', 'NỮ','THÁNG VÀNG SĂN SALE']}
+        const categories = await Category.find({
+            header: { $in: ['NAM', 'NỮ', 'THÁNG VÀNG SĂN SALE'] }
         })
+        .select('code header')
+        .sort({ header: 1 });
+
         resolve({
-            err: response ? 0 : 1,
-            msg: response ? 'OK' : 'Failed to get categories.',
-            response
-        })
+            err: categories ? 0 : 1,
+            msg: categories ? 'OK' : 'Failed to get categories.',
+            response: categories
+        });
     } catch (error) {
-        reject(error)
+        reject(error);
     }
-})
+});
+
+module.exports = { getCategoriesSerivce };
