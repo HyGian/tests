@@ -11,22 +11,18 @@ const Orders = () => {
     try {
       if (!token) return;
 
-      const response = await axios.post(
-        `${backendUrl}/api/order/userorders`,
-        [],
-        { headers: { token } }
-      );
+      const response = await axios.get(`${backendUrl}/order/InfoOrder/InfoOrderSuccsessfull`, { headers: { token } });
 
-      if (response.data.success) {
+      if (response.data.err === 0) {
         let allOrdersItem = [];
-        response.data.orders.forEach((order) => {
-          order.items.forEach((item) => {
+        (response.data.response || []).forEach((order) => {
+          (order.items || []).forEach((item) => {
             allOrdersItem.push({
               ...item,
               status: order.status,
               payment: order.payment,
               paymentMethod: order.paymentMethod,
-              date: order.date,
+              date: order.createdAt,
             });
           });
         });

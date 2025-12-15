@@ -66,20 +66,27 @@ const PlaceOrder = () => {
   
       switch (paymentMethod) {
         case 'cod':
-          const response = await axios.post(
-            `${backendUrl}/api/order/place`,
-            orderData,
-            { headers: { token } }
+          await Promise.all(
+            orderItems.map((item) =>
+              axios.post(
+                `${backendUrl}/order`,
+                {
+                  name: item.name,
+                  productId: item._id,
+                  size: item.size,
+                  quantity: item.quantity,
+                  price: item.price,
+                  imageUrl: Array.isArray(item.image) ? item.image[0] : ''
+                },
+                { headers: { token } }
+              )
+            )
           );
-          
-          if (response.data.success) {
-            localStorage.removeItem('cartItems');
-            setCartItems({});
-            navigate('/orders');
-            toast.success('Order placed successfully');
-          } else {
-            toast.error(response.data.message);
-          }
+
+          localStorage.removeItem('cartItems');
+          setCartItems({});
+          navigate('/orders');
+          toast.success('Order placed successfully');
           break;
           // case 'stripe':
           //   const responseStripe = await axios.post(backendUrl + '/api/order/stripe', orderData, {headers:{token}}) 

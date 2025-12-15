@@ -13,11 +13,11 @@ const Orders = ({token}) => {
       return null;
     }
     try {
-      const response = await axios.post(backendUrl + '/api/order/list', {}, {headers:{token}})
-      if (response.data.success){
-        setOrders(response.data.orders)
+      const response = await axios.get(`${backendUrl}/admin/orders`, {headers:{token}})
+      if (response.data.err === 0){
+        setOrders(response.data.response || [])
       } else {
-        toast.error(response.data.message)
+        toast.error(response.data.msg || 'Tải đơn hàng thất bại')
       }
     } catch (error) {
       toast.error(error.message)
@@ -25,24 +25,7 @@ const Orders = ({token}) => {
   }
 
   const statusHandler = async (event, orderId) => {
-    try {
-      const newStatus = event.target.value;
-      const response = await axios.post(
-        backendUrl + "/api/order/status",
-        { orderId, status: newStatus },
-        { headers: { token } }
-      );
-  
-      if (response.data.success) {
-        toast.success("Cập nhật trạng thái thành công");
-        fetchAllOrders();
-      } else {
-        toast.error(response.data.message);
-      }
-    } catch (error) {
-      console.error("Update Status Error:", error.response?.data || error.message);
-      toast.error(error.response?.data?.message || "Lỗi cập nhật trạng thái");
-    }
+    toast.warn('Cập nhật trạng thái chưa được backend hỗ trợ.');
   };
   
 
@@ -59,35 +42,31 @@ const Orders = ({token}) => {
             <img className='w-12' src={assets.parcel_icon} alt="" />
             <div>
             <div>
-              {order.items.map((item, index) => {
+              {order.items?.map((item, index) => {
                 if(index === order.items.length - 1) {
-                  return <p className='py-0.5' key={index}>{item.name}x{item.quantity} <span>{item.size}</span></p>
+                  return <p className='py-0.5' key={index}>{(item.productName || item.product?.name)}x{item.quantity} <span>{item.size}</span></p>
                 }
                 else {
-                  return <p className='py-0.5' key={index}>{item.name}x{item.quantity} <span>{item.size}</span>,</p>
+                  return <p className='py-0.5' key={index}>{(item.productName || item.product?.name)}x{item.quantity} <span>{item.size}</span>,</p>
                 }
               })}
             </div>
-            <p className='mt-3 mb-2 font-medium'>{order.address.firstName + " " + order.address.lastName}</p>
+            <p className='mt-3 mb-2 font-medium'>{order.shippingAddress?.fullName || 'N/A'}</p>
             <div>
-              <p>{order.address.street + ","}</p>
-              <p>{order.address.city + ", " + order.address.state + ", " + order.address.country + ", " + order.address.zipcode}</p>
+              <p>{order.shippingAddress?.addressLine1}</p>
+              <p>{order.shippingAddress?.city}</p>
             </div>
-            <p>{order.address.phone}</p>
+            <p>{order.shippingAddress?.phoneNumber}</p>
           </div>
           <div>
-            <p className='text-sm sm:text-[15px]'>Sản phẩm: {order.items.length}</p>
-            <p className='mt-3'>Phương thức: {order.paymentMethod}</p>
-            <p>Thanh toán: {order.payment ? 'Đã thanh toán' : 'Chưa thanh toán'}</p>
-            <p>Ngày: {new Date(order.date).toLocaleDateString()}</p>
+            <p className='text-sm sm:text-[15px]'>Sản phẩm: {order.items?.length || 0}</p>
+            <p className='mt-3'>Trạng thái: {order.status}</p>
+            <p>Thanh toán: {order.status === 'Order Successful' ? 'Đã thanh toán' : 'Chưa thanh toán'}</p>
+            <p>Ngày: {new Date(order.createdAt).toLocaleDateString()}</p>
           </div>
-          <p className='text-sm sm:text-[15px]'>{currency}{order.amount}</p>
-          <select onChange={(event)=>statusHandler(event,order._id)} value={order.status} className='p-2 font-semibold'>
-            <option value="Order Placed">Đã đặt hàng</option>
-            <option value="Packing">Đóng gói</option>
-            <option value="Shipped">Đã gửi</option>
-            <option value="Out for delivery">Đang giao</option>
-            <option value="Delivered">Đã giao</option>
+          <p className='text-sm sm:text-[15px]'>{currency}{order.totalAmount}</p>
+          <select onChange={(event)=>statusHandler(event,order._id)} value={order.status} className='p-2 font-semibold' disabled>
+            <option value={order.status}>{order.status}</option>
           </select>
             </div>
         ))}

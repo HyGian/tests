@@ -8,5 +8,6 @@ const router = express.Router();
 router.post('/login', adminController.login);
 router.get('/infoUser', verifyToken, verifyAdmin, adminController.InfoUser);
 router.get('/product', verifyToken, verifyAdmin, adminController.GetproductAdmin);
+router.get('/orders', verifyToken, verifyAdmin, adminController.getOrderAdmin);
 
 module.exports = router;

@@ -1,10 +1,13 @@
+const path = require('path');
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const connectDB = require('./config/connectDB');
 const initRoutes = require('./routes/index');
-dotenv.config();
+
+// Load env from backend/.env when running from repo root
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 
