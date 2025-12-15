@@ -11,7 +11,7 @@ const Orders = () => {
     try {
       if (!token) return;
 
-      const response = await axios.get(`${backendUrl}/order/InfoOrder/InfoOrderSuccsessfull`, { headers: { token } });
+      const response = await axios.get(`${backendUrl}/order/InfoOrder/InfoOrderSuccsessfull`, { headers: { Authorization: `Bearer ${token}` } });
 
       if (response.data.err === 0) {
         let allOrdersItem = [];

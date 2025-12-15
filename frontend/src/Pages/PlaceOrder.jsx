@@ -78,7 +78,7 @@ const PlaceOrder = () => {
                   price: item.price,
                   imageUrl: Array.isArray(item.image) ? item.image[0] : ''
                 },
-                { headers: { token } }
+                { headers: { Authorization: `Bearer ${token}` } }
               )
             )
           );

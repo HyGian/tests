@@ -9,5 +9,6 @@ router.post('/login', adminController.login);
 router.get('/infoUser', verifyToken, verifyAdmin, adminController.InfoUser);
 router.get('/product', verifyToken, verifyAdmin, adminController.GetproductAdmin);
 router.get('/orders', verifyToken, verifyAdmin, adminController.getOrderAdmin);
+router.put('/order/status/:orderId', verifyToken, verifyAdmin, adminController.updateOrderStatus);
 
 module.exports = router;

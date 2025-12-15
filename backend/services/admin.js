@@ -9,7 +9,7 @@ require('dotenv').config();
 const loginService = ({ phone, password }) => new Promise(async (resolve, reject) => {
     try {
         const admin = await Admin.findOne({ phone });
-        
+
         if (!admin) {
             return resolve({
                 err: 2,
@@ -19,7 +19,7 @@ const loginService = ({ phone, password }) => new Promise(async (resolve, reject
         }
 
         const isCorrectPassword = await admin.comparePassword(password);
-        
+
         if (!isCorrectPassword) {
             return resolve({
                 err: 2,
@@ -29,12 +29,12 @@ const loginService = ({ phone, password }) => new Promise(async (resolve, reject
         }
 
         const token = jwt.sign(
-            { 
-                id: admin._id, 
+            {
+                id: admin._id,
                 phone: admin.phone,
                 role: 'admin'
-            }, 
-            process.env.SECRET_KEY, 
+            },
+            process.env.SECRET_KEY,
             { expiresIn: '2d' }
         );
 
@@ -49,7 +49,7 @@ const loginService = ({ phone, password }) => new Promise(async (resolve, reject
     }
 });
 
-const InfoUser = () => new Promise(async(resolve, reject) => {
+const InfoUser = () => new Promise(async (resolve, reject) => {
     try {
         const users = await User.find({})
             .select('-password')
@@ -65,7 +65,7 @@ const InfoUser = () => new Promise(async(resolve, reject) => {
     }
 });
 
-const GetproductServiceAdmin = () => new Promise(async(resolve, reject) => {
+const GetproductServiceAdmin = () => new Promise(async (resolve, reject) => {
     try {
         const products = await Product.find({})
             .populate('category', 'header description')
@@ -81,7 +81,7 @@ const GetproductServiceAdmin = () => new Promise(async(resolve, reject) => {
     }
 });
 
-const getOrderAdminService = () => new Promise(async(resolve, reject) => {
+const getOrderAdminService = () => new Promise(async (resolve, reject) => {
     try {
         const orders = await Order.find({})
             .populate('user', 'name phone email')
@@ -99,9 +99,35 @@ const getOrderAdminService = () => new Promise(async(resolve, reject) => {
     }
 });
 
+
+const updateOrderStatus = (orderId, status) => new Promise(async (resolve, reject) => {
+    try {
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return resolve({
+                err: 1,
+                msg: 'Order not found',
+                response: null
+            });
+        }
+
+        order.status = status;
+        await order.save();
+
+        resolve({
+            err: 0,
+            msg: 'Update status success',
+            response: order
+        });
+    } catch (error) {
+        reject(error);
+    }
+});
+
 module.exports = {
     loginService,
     InfoUser,
     GetproductServiceAdmin,
-    getOrderAdminService
+    getOrderAdminService,
+    updateOrderStatus
 };

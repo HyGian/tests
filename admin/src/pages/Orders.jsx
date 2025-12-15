@@ -13,7 +13,7 @@ const Orders = ({token}) => {
       return null;
     }
     try {
-      const response = await axios.get(`${backendUrl}/admin/orders`, {headers:{token}})
+      const response = await axios.get(`${backendUrl}/admin/orders`, {headers:{Authorization: `Bearer ${token}`}})
       if (response.data.err === 0){
         setOrders(response.data.response || [])
       } else {
@@ -25,7 +25,18 @@ const Orders = ({token}) => {
   }
 
   const statusHandler = async (event, orderId) => {
-    toast.warn('Cập nhật trạng thái chưa được backend hỗ trợ.');
+    try {
+      const response = await axios.put(`${backendUrl}/admin/order/status/${orderId}`, {status: event.target.value}, { headers: { Authorization: `Bearer ${token}` } })
+      if(response.data.err === 0) {
+        toast.success('Cập nhật trạng thái thành công');
+        await fetchAllOrders()
+      } else {
+        toast.error(response.data.msg || 'Cập nhật thất bại');
+      }
+    } catch (error) {
+       console.log(error);
+       toast.error(error.message);
+    }
   };
   
 
@@ -65,8 +76,13 @@ const Orders = ({token}) => {
             <p>Ngày: {new Date(order.createdAt).toLocaleDateString()}</p>
           </div>
           <p className='text-sm sm:text-[15px]'>{currency}{order.totalAmount}</p>
-          <select onChange={(event)=>statusHandler(event,order._id)} value={order.status} className='p-2 font-semibold' disabled>
-            <option value={order.status}>{order.status}</option>
+          <select onChange={(event)=>statusHandler(event,order._id)} value={order.status} className='p-2 font-semibold'>
+            <option value="await">Chờ xác nhận</option>
+            <option value="Order Successful">Đã thanh toán</option>
+            <option value="Processing">Đang xử lý</option>
+            <option value="Shipped">Đang giao</option>
+            <option value="Delivered">Đã giao</option>
+            <option value="Cancel">Đã hủy</option>
           </select>
             </div>
         ))}

@@ -48,7 +48,7 @@ const ShopContextProvider = ({ children }) => {
             price: product.price,
             imageUrl: Array.isArray(product.image) ? product.image[0] : ''
           },
-          { headers: { token } }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
       } catch (error) {
         console.error(error);
@@ -90,7 +90,7 @@ const ShopContextProvider = ({ children }) => {
               price: orderItem.price,
               imageUrl: orderItem.imageUrl
             },
-            { headers: { token } }
+            { headers: { Authorization: `Bearer ${token}` } }
           )
         )
       );
@@ -165,7 +165,7 @@ const ShopContextProvider = ({ children }) => {
 
   const fetchUserCart = async () => {
     try {
-      const response = await axios.get(`${backendUrl}/order/shopping-cart`, { headers: { token } });
+      const response = await axios.get(`${backendUrl}/order/shopping-cart`, { headers: { Authorization: `Bearer ${token}` } });
 
       if (response.data.err === 0) {
         const cartData = {};
