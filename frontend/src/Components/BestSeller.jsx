@@ -19,10 +19,10 @@ const BestSeller = () => {
   return (
     <div className="my-10">
       <div className="text-center text-3xl py-8">
-        <Title text1={'BEST'} text2={'SELLERS'} />
+        <Title text1={'SẢN PHẨM'} text2={'BÁN CHẠY'} />
         <p className="w-3/4 m-auto text-xs sm:text-sm md:text-base text-gray-600">
-          Our best-selling products that our customers can not get enough of.
-          Shop the most popular items from our store.
+          Những sản phẩm bán chạy nhất của chúng tôi.
+          Khám phá những mặt hàng phổ biến nhất tại cửa hàng.
         </p>
       </div>
 
@@ -34,6 +34,7 @@ const BestSeller = () => {
             image={product.image}
             name={product.name}
             price={product.price}
+            sizes={product.sizes}
           />
         ))}
       </div>

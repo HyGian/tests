@@ -3,35 +3,43 @@ import { ShopContext } from '../Context/ShopContext';
 import Title from './Title';
 
 const CartTotal = () => {
-  const { currency, delivery_fee, getCartAmount } = useContext(ShopContext);
+  const { currency, delivery_fee, getCartAmount, discount, appliedCoupon } = useContext(ShopContext);
+
+  const subtotal = getCartAmount();
+  const total = subtotal === 0 ? 0 : subtotal + delivery_fee - discount;
 
   return (
     <div className="w-full">
       <div className="text-2xl">
-        <Title text1={'CART'} text2={'TOTAL'} />
+        <Title text1={'TỔNG'} text2={'TIỀN'} />
       </div>
 
       <div className="flex flex-col gap-2 mt-2 text-sm ">
         <div className="flex justify-between">
-          <p>Subtotal</p>
+          <p>Tạm tính</p>
           <p>
-            {' '}
-            {currency} {getCartAmount()}.00
+            {subtotal.toLocaleString()}{currency}
           </p>
         </div>
         <div className="flex justify-between">
-          <p>Shipping Fee</p>
+          <p>Phí giao hàng</p>
           <p>
-            {' '}
-            {currency} {delivery_fee}.00
+            {delivery_fee.toLocaleString()}{currency}
           </p>
         </div>
-        <div className="flex justify-between">
-          <p>Total</p>
+        {appliedCoupon && discount > 0 && (
+          <div className="flex justify-between text-green-600">
+            <p>Giảm giá ({appliedCoupon.code})</p>
+            <p>
+              -{discount.toLocaleString()}{currency}
+            </p>
+          </div>
+        )}
+        <hr className="my-1" />
+        <div className="flex justify-between font-semibold text-base">
+          <p>Tổng cộng</p>
           <p>
-            {' '}
-            {currency}{' '}
-            {getCartAmount() === 0 ? 0 : getCartAmount() + delivery_fee}.00
+            {total.toLocaleString()}{currency}
           </p>
         </div>
       </div>
@@ -40,3 +48,4 @@ const CartTotal = () => {
 };
 
 export default CartTotal;
+
