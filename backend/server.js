@@ -6,10 +6,11 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const connectDB = require('./config/connectDB');
 const { connectRedis } = require('./config/redis');
-const passport = require('./config/passport');
 const initRoutes = require('./routes/index');
 
 dotenv.config({ path: path.join(__dirname, '.env') });
+
+const passport = require('./config/passport');
 
 const app = express();
 
@@ -36,7 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 
 connectDB();
-connectRedis();
+// connectRedis();
 
 initRoutes(app);
 
