@@ -71,29 +71,38 @@ const Product = () => {
             <p className="pl-2">(122)</p>
           </div> */}
           <p className="mt-5 text-3xl font-medium">
-            {currency}
-            {productsData.price}
+            {productsData.price.toLocaleString()}{currency}
           </p>
           <p className="mt-5 text-gray-500 md:w-4/5 ">
             {productsData.description}
           </p>
 
           <div className="flex flex-col gap-4 my-8">
-            <p className="">Select Size</p>
+            <p className="">Chọn Size</p>
             <div className="flex gap-2">
-              {productsData.sizes.map((item, index) => (
-                <button
-                  key={index}
-                  onClick={() => {
-                    setSize(item);
-                  }}
-                  className={`w-8 h-8 border bg-gray-100 flex items-center justify-center cursor-pointer
-                  ${item === size ? 'border-orange-500' : ''}
-                  `}
-                >
-                  {item}
-                </button>
-              ))}
+              {productsData.sizes.map((item, index) => {
+                // Support both new object format and legacy string format (just in case)
+                const sizeName = typeof item === 'object' ? item.size : item;
+                const quantity = typeof item === 'object' ? item.quantity : 1;
+                const isOutOfStock = quantity <= 0;
+
+                return (
+                  <button
+                    key={index}
+                    disabled={isOutOfStock}
+                    onClick={() => {
+                      if (!isOutOfStock) setSize(sizeName);
+                    }}
+                    className={`w-10 h-10 border bg-gray-100 flex items-center justify-center cursor-pointer relative
+                    ${sizeName === size ? 'border-orange-500' : ''}
+                    ${isOutOfStock ? 'opacity-50 cursor-not-allowed bg-gray-200' : ''}
+                    `}
+                    title={isOutOfStock ? "Hết hàng" : `Còn lại: ${quantity}`}
+                  >
+                    {sizeName}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
@@ -101,15 +110,15 @@ const Product = () => {
             onClick={() => addToCart(productsData._id, size)}
             className="bg-black text-white py-3 px-8 text-sm active:bg-gray-700"
           >
-            ADD TO CART
+            THÊM VÀO GIỎ
           </button>
 
           <hr className="mt-8 sm:w-4/5" />
 
           <div className="flex flex-col gap-1 mt-5 text-sm text-gray-500">
-            <p>100% Original product </p>
-            <p>Free delivery on order above $49</p>
-            <p> Easy return and exchange policy within 7 days </p>
+            <p>Sản phẩm chính hãng 100%</p>
+            <p>Miễn phí giao hàng cho đơn hàng trên 1.000.000đ</p>
+            <p>Đổi trả dễ dàng trong vòng 7 ngày</p>
           </div>
         </div>
       </div>
@@ -118,25 +127,20 @@ const Product = () => {
 
       <div className="mt-10">
         <div className="flex">
-          <b className="px-5 py-3 text-sm border">Description</b>
+          <b className="px-5 py-3 text-sm border">Mô tả</b>
           {/* <p className="px-5 py-3 text-sm border">Reviews (122)</p> */}
         </div>
 
         <div className=" flex flex-col gap-4 border px-6 py-6 text-sm text-gray-500 ">
           <p>
-            An e-commerce website is an online platform that facilitates the
-            buying and selling of products or services over the internet. It
-            serves as a virtual marketplace where businesses and individuals
-            showcase their product, interact with customers, and conduct
-            transactions without the need for a physical presence. E-commerce
-            websites have immense popularity due to their convenience,
-            accessibility, and the global reach they offer.
+            Trang web thương mại điện tử là nền tảng trực tuyến giúp mua và bán
+            sản phẩm hoặc dịch vụ qua internet. Nó hoạt động như một chợ
+            ảo, nơi các doanh nghiệp và cá nhân giới thiệu sản phẩm, tương tác
+            với khách hàng và giao dịch mà không cần hiện diện vật lý.
           </p>
           <p>
-            E-commerce websites typically display products or services along
-            with default descriptions, images, prices, and any available
-            variations (eg, sizes colors). Each product has its own
-            dedicated page with relevant information
+            Các trang web thương mại điện tử thường hiển thị sản phẩm cùng
+            với mô tả, hình ảnh, giá cả và các biến thể có sẵn (ví dụ: size, màu sắc).
           </p>
         </div>
       </div>
