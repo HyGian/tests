@@ -12,7 +12,6 @@ passport.use(new GoogleStrategy({
     passReqToCallback: true
 }, async (req, accessToken, refreshToken, profile, done) => {
     try {
-        // Kiểm tra user đã tồn tại chưa
         let user = await User.findOne({ 
             $or: [
                 { email: profile.emails[0].value },
@@ -21,26 +20,23 @@ passport.use(new GoogleStrategy({
         });
 
         if (!user) {
-            // Tạo user mới
             user = new User({
                 name: profile.displayName,
                 email: profile.emails[0].value,
                 googleId: profile.id,
-                phone: '', // Google không cung cấp phone
-                password: Math.random().toString(36).slice(-8), // Random password
+                phone: '', 
+                password: Math.random().toString(36).slice(-8), 
                 isVerified: true,
                 avatar: profile.photos[0].value
             });
             await user.save();
         } else {
-            // Cập nhật googleId nếu chưa có
             if (!user.googleId) {
                 user.googleId = profile.id;
                 await user.save();
             }
         }
 
-        // Tạo JWT token
         const token = jwt.sign(
             { id: user._id, email: user.email },
             process.env.SECRET_KEY,
@@ -53,7 +49,6 @@ passport.use(new GoogleStrategy({
     }
 }));
 
-// Facebook Strategy
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
@@ -62,7 +57,6 @@ passport.use(new FacebookStrategy({
     passReqToCallback: true
 }, async (req, accessToken, refreshToken, profile, done) => {
     try {
-        // Kiểm tra user đã tồn tại chưa
         let user = await User.findOne({ 
             $or: [
                 { email: profile.emails ? profile.emails[0].value : `${profile.id}@facebook.com` },
@@ -71,26 +65,23 @@ passport.use(new FacebookStrategy({
         });
 
         if (!user) {
-            // Tạo user mới
             user = new User({
                 name: profile.displayName,
                 email: profile.emails ? profile.emails[0].value : `${profile.id}@facebook.com`,
                 facebookId: profile.id,
-                phone: '', // Facebook không cung cấp phone
-                password: Math.random().toString(36).slice(-8), // Random password
+                phone: '', 
+                password: Math.random().toString(36).slice(-8), 
                 isVerified: true,
                 avatar: profile.photos ? profile.photos[0].value : null
             });
             await user.save();
         } else {
-            // Cập nhật facebookId nếu chưa có
             if (!user.facebookId) {
                 user.facebookId = profile.id;
                 await user.save();
             }
         }
 
-        // Tạo JWT token
         const token = jwt.sign(
             { id: user._id, email: user.email },
             process.env.SECRET_KEY,
@@ -103,12 +94,10 @@ passport.use(new FacebookStrategy({
     }
 }));
 
-// Serialize user
 passport.serializeUser((data, done) => {
     done(null, data.user._id);
 });
 
-// Deserialize user
 passport.deserializeUser(async (id, done) => {
     try {
         const user = await User.findById(id);

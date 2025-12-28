@@ -1,23 +1,14 @@
 {
     "development": {
-        "username": "nguyenthithutam",
-        "password": null,
-        "database": "ecommerce",
-        "host": "127.0.0.1",
-        "dialect": "postgres"
+        "mongodb_uri": "mongodb://localhost:27017/ecommerce",
+        "database": "ecommerce"
     },
     "test": {
-        "username": "nguyenthithutam",
-        "password": null,
-        "database": "ecommerce_test",
-        "host": "127.0.0.1",
-        "dialect": "postgres"
+        "mongodb_uri": "mongodb://localhost:27017/ecommerce_test",
+        "database": "ecommerce_test"
     },
     "production": {
-        "username": "nguyenthithutam",
-        "password": null,
-        "database": "ecommerce_prod",
-        "host": "127.0.0.1",
-        "dialect": "postgres"
+        "mongodb_uri": "mongodb+srv://username:password@cluster.mongodb.net/ecommerce_prod",
+        "database": "ecommerce_prod"
     }
 }

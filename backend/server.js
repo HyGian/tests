@@ -3,6 +3,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const session = require('express-session');
 const connectDB = require('./config/connectDB');
 const { connectRedis } = require('./config/redis');
 const passport = require('./config/passport');
