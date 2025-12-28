@@ -1,5 +1,6 @@
 const Product = require('../models/product');
 const Category = require('../models/category');
+const { cache } = require('../config/redis');
 const mongoose = require('mongoose');
 
 const getProductSerivce = () => new Promise(async (resolve, reject) => {

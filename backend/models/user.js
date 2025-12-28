@@ -8,7 +8,13 @@ const userSchema = new mongoose.Schema({
     email: { type: String, default: '' },
     address: { type: String, default: '' },
     gender: { type: String, enum: ['Nam', 'Nữ', 'other'], default: 'other' },
-    dateOfBirth: { type: Date, default: null }
+    dateOfBirth: { type: Date, default: null },
+    googleId: { type: String, unique: true, sparse: true },
+    facebookId: { type: String, unique: true, sparse: true },
+    avatar: { type: String, default: '' },
+    isVerified: { type: Boolean, default: false },
+    
+    provider: { type: String, enum: ['local', 'google', 'facebook'], default: 'local' }
 }, {
     timestamps: true
 });

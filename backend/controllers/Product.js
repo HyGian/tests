@@ -102,6 +102,9 @@ const PostDeleteProduct = async (req, res) => {
     
     try {
         const response = await productService.DeleteProduct(products);
+        if (req.clearCache) {
+            await req.clearCache();
+        }
         return res.status(200).json(response);
     } catch (error) {
         return res.status(500).json({

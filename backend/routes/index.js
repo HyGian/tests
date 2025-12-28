@@ -4,6 +4,7 @@ const productRoute = require('./Product');
 const userRouter = require('./user');
 const orderRoute = require('./Order');
 const adminRoute = require('./admin');
+const socialAuthRoute = require('./social'); 
 const paymentRoute = require('./payment');
 const shippingAddressRoute = require('./ShippingAddress');
 

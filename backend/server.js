@@ -4,9 +4,10 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const connectDB = require('./config/connectDB');
+const { connectRedis } = require('./config/redis');
+const passport = require('./config/passport');
 const initRoutes = require('./routes/index');
 
-// Load env from backend/.env when running from repo root
 dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
@@ -17,11 +18,24 @@ app.use(cors({
     credentials: true
 }));
 
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your_session_secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 24 * 60 * 60 * 1000 
+    }
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 
 connectDB();
+connectRedis();
 
 initRoutes(app);
 
