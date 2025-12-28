@@ -9,9 +9,13 @@ import Cart from './Pages/Cart';
 import Login from './Pages/Login';
 import PlaceOrder from './Pages/PlaceOrder';
 import Orders from './Pages/Orders';
+import Verify from './Pages/Verify';
+import ForgotPassword from './Pages/ForgotPassword';
+import ResetPassword from './Pages/ResetPassword';
 import Navbar from './Components/Navbar';
 import Footer from './Components/Footer';
 import SearchBar from './Components/SearchBar';
+import ChatWidget from './Components/ChatWidget';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -24,6 +28,7 @@ function App() {
 
       <Navbar />
       <SearchBar />
+      <ChatWidget />
 
       <Routes>
         <Route path="/" element={<Home />} />
@@ -35,6 +40,9 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/place-order" element={<PlaceOrder />} />
         <Route path="/orders" element={<Orders />} />
+        <Route path="/verify" element={<Verify />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
       </Routes>
 
       <Footer />
