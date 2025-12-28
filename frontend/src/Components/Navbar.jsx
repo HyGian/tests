@@ -20,19 +20,19 @@ const Navbar = () => {
 
       <ul className="hidden sm:flex gap-5 text-sm text-gray-700">
         <NavLink to="/" className="flex flex-col items-center gap-1">
-          <p>HOME</p>
+          <p>TRANG CHỦ</p>
           <hr className="w-2/4 border-none h-[1.5px] bg-gray-700 hidden" />
         </NavLink>
         <NavLink to="/collection" className="flex flex-col items-center gap-1">
-          <p>COLLECTION</p>
+          <p>BỘ SƯU TẬP</p>
           <hr className="w-2/4 border-none h-[1.5px] bg-gray-700 hidden" />
         </NavLink>
         <NavLink to="/about" className="flex flex-col items-center gap-1">
-          <p>ABOUT</p>
+          <p>VỀ CHÚNG TÔI</p>
           <hr className="w-2/4 border-none h-[1.5px] bg-gray-700 hidden" />
         </NavLink>
         <NavLink to="/contact" className="flex flex-col items-center gap-1">
-          <p>CONTACT</p>
+          <p>LIÊN HỆ</p>
           <hr className="w-2/4 border-none h-[1.5px] bg-gray-700 hidden" />
         </NavLink>
       </ul>
@@ -49,9 +49,8 @@ const Navbar = () => {
           {token &&
           <div className="group-hover:block hidden absolute dropdown-menu right-0 pt-4">
           <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-sm">
-            <p className="cursor-pointer hover:text-black">My Profile</p>
-            <p onClick={()=>navigate('/orders')} className="cursor-pointer hover:text-black">Orders</p>
-            <p onClick={logout} className="cursor-pointer hover:text-black">Log out</p>
+            <p onClick={()=>navigate('/orders')} className="cursor-pointer hover:text-black">Đơn hàng</p>
+            <p onClick={logout} className="cursor-pointer hover:text-black">Đăng xuất</p>
           </div>
         </div>}
         </div>
@@ -67,13 +66,13 @@ const Navbar = () => {
           src={assets.menu_icon}
           alt="menu"
           className="w-5 cursor-pointer sm:hidden"
-          onClick={() => setVisible(!visible)} // visibility toggle (true/false)
+          onClick={() => setVisible(!visible)} 
         />
       </div>
 
       {/* Sidebar menu for small screens */}
       <div
-        className={`absolute top-0 right-0 bottom-0 bg-white ease-in duration-300 ${
+        className={`absolute top-0 right-0 bottom-0 overflow-hidden bg-white transition-all ${
           visible ? 'w-full' : 'w-0'
         }`}
       >
@@ -83,19 +82,21 @@ const Navbar = () => {
             className="flex items-center gap-4 p-3 cursor-pointer"
           >
             <img src={assets.dropdown_icon} alt="close menu" className="h-4 rotate-180" />
-            <p className="font-semibold">Back</p>
+            <p className="font-semibold">Quay lại</p>
           </div>
 
-          {['HOME', 'COLLECTION', 'ABOUT', 'CONTACT'].map((item, index) => (
-            <NavLink
-              key={index}
-              onClick={() => setVisible(false)}
-              className="py-2 pl-6 border"
-              to={`/${item.toLowerCase()}`}
-            >
-              {item}
-            </NavLink>
-          ))}
+          <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/">
+            TRANG CHỦ
+          </NavLink>
+          <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/collection">
+            BỘ SƯU TẬP
+          </NavLink>
+          <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/about">
+            VỀ CHÚNG TÔI
+          </NavLink>
+          <NavLink onClick={() => setVisible(false)} className="py-2 pl-6 border" to="/contact">
+            LIÊN HỆ
+          </NavLink>
         </div>
       </div>
     </div>
