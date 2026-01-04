@@ -1,49 +1,53 @@
-const path = require('path');
 const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
 const mongoose = require('mongoose');
 const session = require('express-session');
-const connectDB = require('./config/connectDB');
 const { connectRedis } = require('./config/redis');
 const http = require('http');
 const SocketServer = require('./socket/socketServer');
 const initRoutes = require('./routes/index');
-
-dotenv.config({ path: path.join(__dirname, '.env') });
-
 const passport = require('./config/passport');
+const dotenv = require('dotenv'); 
+
+dotenv.config(); 
 
 const app = express();
 const server = http.createServer(app);
 
-app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    credentials: true
-}));
-
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'your_session_secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 24 * 60 * 60 * 1000 
-    }
-}));
-
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(express.json());
+app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
-app.set('view engine', 'ejs');
 
+
+const connectDB = async () => {
+    try {
+        const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/Ecommerce_System');
+
+        console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+
+
+        require('./models/user');
+        require('./models/admin');
+        require('./models/category');
+        require('./models/product');
+        require('./models/review');
+        require('./models/shippingaddress');
+        require('./models/order');
+        require('./models/customersupport');
+        
+        console.log(' All Models Loaded Successfully');
+        
+    } catch (error) {
+        console.error(` Database Error: ${error.message}`);
+        process.exit(1); 
+    }
+};
+
+// Chạy kết nối DB
 connectDB();
-connectRedis();
 
+// Khởi tạo Socket
 const socketServer = new SocketServer(server);
 
+// Khởi tạo Routes
 initRoutes(app);
 
 const PORT = process.env.PORT || 8888;

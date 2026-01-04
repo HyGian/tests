@@ -18,4 +18,4 @@ const shippingAddressSchema = new mongoose.Schema({
     timestamps: true
 });
 
-module.exports = mongoose.model('ShippingAddress', shippingAddressSchema);
+module.exports = mongoose.models.ShippingAddress || mongoose.model('ShippingAddress', shippingAddressSchema);

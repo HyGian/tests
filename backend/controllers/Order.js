@@ -1,6 +1,6 @@
 const orderService = require('../services/Order');
 
-const postOrder = async (req, res) => {
+const postOrder = async (req, res, next) => {
     const { id } = req.user;
     if (!id) {
         return res.status(401).json({
@@ -21,7 +21,7 @@ const postOrder = async (req, res) => {
     }
 };
 
-const getOrder = async (req, res) => {
+const getOrder = async (req, res, next) => {
     const { id } = req.user;
     if (!id) {
         return res.status(401).json({
@@ -41,7 +41,7 @@ const getOrder = async (req, res) => {
     }
 };
 
-const UpdateOrder = async (req, res) => {
+const UpdateOrder = async (req, res, next) => {
     try {
         const { orderItemId } = req.params;
         const { quantity } = req.body;
@@ -63,7 +63,7 @@ const UpdateOrder = async (req, res) => {
     }
 };
 
-const DeleteOrder = async (req, res) => {
+const DeleteOrder = async (req, res, next) => {
     try {
         const { orderitemsId } = req.params;
         const response = await orderService.deleteOrderService(orderitemsId);
@@ -76,7 +76,7 @@ const DeleteOrder = async (req, res) => {
     }
 };
 
-const ShippingAdress = async (req, res) => {
+const ShippingAdress = async (req, res, next) => {
     const { id } = req.params;
     if (!id) {
         return res.status(400).json({
@@ -96,7 +96,7 @@ const ShippingAdress = async (req, res) => {
     }
 };
 
-const putOrderUser = async (req, res) => {
+const putOrderUser = async (req, res, next) => {
     const postalCode = req.params.id;
     const { id } = req.user;
     
@@ -118,7 +118,7 @@ const putOrderUser = async (req, res) => {
     }
 };
 
-const InfoOrderSuccessful = async (req, res) => {
+const InfoOrderSuccessful = async (req, res, next) => {
     const { id } = req.user;
     if (!id) {
         return res.status(401).json({

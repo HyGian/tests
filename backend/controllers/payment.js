@@ -1,6 +1,6 @@
 const paymentService = require('../services/payment');
 
-const checkout = async (req, res) => {
+const checkout = async (req, res, next) => {
     const { amount } = req.body;
 
     if (typeof amount !== 'number' || amount <= 0) {
@@ -22,7 +22,7 @@ const checkout = async (req, res) => {
     }
 };
 
-const exportPayments = async (req, res) => {
+const exportPayments = async (req, res, next) => {
     try {
         const response = await paymentService.exportPayments();
         return res.status(200).json(response);
@@ -35,7 +35,7 @@ const exportPayments = async (req, res) => {
     }
 };
 
-const getPaymentIntentId = async (req, res) => {
+const getPaymentIntentId = async (req, res, next) => {
     const { sessionId } = req.params;
 
     if (!sessionId) {
@@ -57,10 +57,7 @@ const getPaymentIntentId = async (req, res) => {
     }
 };
 
-/**
- * @desc Refund payment by postal code
- */
-const refundPayment = async (req, res) => {
+const refundPayment = async (req, res, next) => {
     const { id: postalCode } = req.params;
 
     if (!postalCode) {

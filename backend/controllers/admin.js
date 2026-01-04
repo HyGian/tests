@@ -1,6 +1,6 @@
 const adminService = require('../services/admin');
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
     const { phone, password } = req.body;
     try {
         if (!phone || !password) {
@@ -21,7 +21,7 @@ const login = async (req, res) => {
     }
 };
 
-const InfoUser = async (req, res) => {
+const InfoUser = async (req, res, next) => {
     try {
         const response = await adminService.InfoUser();
         return res.status(200).json(response);
@@ -33,7 +33,7 @@ const InfoUser = async (req, res) => {
     }
 };
 
-const GetproductAdmin = async (req, res) => {
+const GetproductAdmin = async (req, res, next) => {
     try {
         const response = await adminService.GetproductServiceAdmin();
         return res.status(200).json(response);
@@ -45,7 +45,7 @@ const GetproductAdmin = async (req, res) => {
     }
 };
 
-const getOrderAdmin = async (req, res) => {
+const getOrderAdmin = async (req, res, next) => {
     try {
         const response = await adminService.getOrderAdminService();
         return res.status(200).json(response);
@@ -58,7 +58,7 @@ const getOrderAdmin = async (req, res) => {
 };
 
 
-const updateOrderStatus = async (req, res) => {
+const updateOrderStatus = async (req, res, next) => {
     try {
         const { orderId } = req.params;
         const { status } = req.body;

@@ -1,6 +1,6 @@
 const categoryService = require('../services/category');
 
-const getCategories = async (req, res) => {
+const getCategories = async (req, res, next) => {
     try {
         const response = await categoryService.getCategoriesSerivce();
         return res.status(200).json(response);

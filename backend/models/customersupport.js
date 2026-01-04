@@ -18,4 +18,4 @@ const customerSupportSchema = new mongoose.Schema({
     timestamps: true
 });
 
-module.exports = mongoose.model('CustomerSupport', customerSupportSchema);
+module.exports = mongoose.models.CustomerSupport || mongoose.model('CustomerSupport', customerSupportSchema);

@@ -1,6 +1,6 @@
 const productService = require('../services/Product');
 
-const getProduct = async (req, res) => {
+const getProduct = async (req, res, next) => {
     try {
         const response = await productService.getProductSerivce();
         return res.status(200).json(response);
@@ -12,7 +12,7 @@ const getProduct = async (req, res) => {
     }
 };
 
-const getProductQR = async (req, res) => {
+const getProductQR = async (req, res, next) => {
     try {
         const { ...query } = req.query;
         const response = await productService.getProductQRSerivce(query);
@@ -25,7 +25,7 @@ const getProductQR = async (req, res) => {
     }
 };
 
-const getProductLimit = async (req, res) => {
+const getProductLimit = async (req, res, next) => {
     try {
         const { postId } = req.params;
         
@@ -46,7 +46,7 @@ const getProductLimit = async (req, res) => {
     }
 };
 
-const getProductSreach = async (req, res) => {
+const getProductSreach = async (req, res, next) => {
     try {
         const response = await productService.getProductSreachService(req.query);
         return res.status(200).json(response);
@@ -58,7 +58,7 @@ const getProductSreach = async (req, res) => {
     }
 };
 
-const PostCreatePorduct = async (req, res) => {
+const PostCreatePorduct = async (req, res, next) => {
     const {
         productName,
         productDescription,
@@ -90,7 +90,7 @@ const PostCreatePorduct = async (req, res) => {
     }
 };
 
-const PostDeleteProduct = async (req, res) => {
+const PostDeleteProduct = async (req, res, next) => {
     const products = req.body;
     
     if (!products || !Array.isArray(products) || products.length === 0) {

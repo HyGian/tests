@@ -28,7 +28,7 @@ const facebookCallback = (req, res, next) => {
     })(req, res, next);
 };
 
-const linkGoogle = async (req, res) => {
+const linkGoogle = async (req, res, next) => {
     try {
         const { token } = req.body;
         const user = req.user;
@@ -46,7 +46,7 @@ const linkGoogle = async (req, res) => {
     }
 };
 
-const linkFacebook = async (req, res) => {
+const linkFacebook = async (req, res, next) => {
     try {
         const { token } = req.body;
         const user = req.user;

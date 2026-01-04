@@ -1,6 +1,6 @@
 const authService = require('../services/auth');
 
-const register = async (req, res) => {
+const register = async (req, res, next) => {
     const { name, phone, password } = req.body;
     try {
         if (!name || !phone || !password) {
@@ -9,19 +9,14 @@ const register = async (req, res) => {
                 msg: 'Missing inputs!'
             });
         }
-        
         const response = await authService.registerService(req.body);
         return res.status(200).json(response);
-
     } catch (error) {
-        return res.status(500).json({
-            err: -1,
-            msg: 'Fail at auth controller: ' + error.message
-        });
+        next(error); // Bây giờ next đã tồn tại
     }
 };
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
     const { phone, password } = req.body;
     try {
         if (!phone || !password) {
@@ -30,19 +25,11 @@ const login = async (req, res) => {
                 msg: 'Missing inputs!'
             });
         }
-        
         const response = await authService.loginService(req.body);
         return res.status(200).json(response);
-
     } catch (error) {
-        return res.status(500).json({
-            err: -1,
-            msg: 'Fail at auth controller: ' + error.message
-        });
+        next(error);
     }
 };
 
-module.exports = {
-    register,
-    login
-};
+module.exports = { register, login };

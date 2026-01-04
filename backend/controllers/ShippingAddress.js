@@ -1,6 +1,6 @@
 const shippingAddressService = require('../services/shippingaddress');
 
-const postShippingAddress = async (req, res) => {
+const postShippingAddress = async (req, res, next) => {
     const { id } = req.user;
     
     if (!id) {

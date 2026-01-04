@@ -74,4 +74,4 @@ orderItemSchema.virtual('calculateTotalPrice').get(function() {
     return this.price * this.quantity;
 });
 
-module.exports = mongoose.model('Order', orderSchema);
+module.exports = mongoose.models.Order || mongoose.model('Order', orderSchema)

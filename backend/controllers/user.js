@@ -1,6 +1,6 @@
 const userService = require('../services/user');
 
-const updateUserController = async (req, res) => {
+const updateUserController = async (req, res, next) => {
     const { id } = req.user;
     const payload = req.body;
     
@@ -23,7 +23,7 @@ const updateUserController = async (req, res) => {
     }
 };
 
-const getContactcontroller = async (req, res) => {
+const getContactcontroller = async (req, res, next) => {
     const { id } = req.user;
     const payload = req.body;
     
@@ -46,7 +46,7 @@ const getContactcontroller = async (req, res) => {
     }
 };
 
-const getCurrent = async (req, res) => {
+const getCurrent = async (req, res, next) => {
     const { id } = req.user;
     
     try {
