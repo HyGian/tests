@@ -20,6 +20,6 @@ ZLP_APP_ID=2553
 ZLP_KEY1=9ph319pw68px7765943419912061324
 ZLP_KEY2=I96G6D99I1M3S56M732A
 ZLP_ENDPOINT=https://sb-openapi.zalopay.vn/v2/create
-ZLP_CALLBACK_URL=https://irrevocable-charley-volcanologic.ngrok-free.dev/api/zalopay/callback
+ZLP_CALLBACK_URL=https://your-ngrok-url.app/api/zalopay/callback
 
 VITE_GOOGLE_CLIENT_ID=207201351129-eou227b0n9it6c6i9pqgj60vbufjcgbk.apps.googleusercontent.com
