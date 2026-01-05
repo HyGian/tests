@@ -1,14 +1,15 @@
-const express = require('express');
-const productController = require('../controllers/Product');
-const { cacheMiddleware, clearCacheMiddleware } = require('../middlewares/cache');
+import express from 'express'
+import { listProducts, addProduct, removeProduct, singleProduct, updateProduct, restockProduct } from "../controllers/Product.js"
+import upload from "../middleware/multer.js"
+import adminAuth from '../middleware/adminAuth.js'
 
-const router = express.Router();
+const productRouter = express.Router();
 
-router.get('/all', cacheMiddleware('products', 3600), productController.getProduct);
-router.get('/limit/:postId', cacheMiddleware('product_detail', 1800), productController.getProductLimit);
-router.get('/sort', cacheMiddleware('products_sort', 900), productController.getProductQR);
-router.get('/tim-kiem', cacheMiddleware('products_search', 600), productController.getProductSreach);
-router.post('/create/productId', clearCacheMiddleware(['products*']), productController.PostCreatePorduct);
-router.post('/delete/productId', clearCacheMiddleware(['products*', 'product_detail*']), productController.PostDeleteProduct);
+productRouter.post('/add', adminAuth, upload.fields([{ name: "image1", maxCount: 1 }, { name: "image2", maxCount: 1 }, { name: "image3", maxCount: 1 }, { name: "image4", maxCount: 1 }]), addProduct);
+productRouter.post('/remove', adminAuth, removeProduct);
+productRouter.post('/single', singleProduct);
+productRouter.post('/update', adminAuth, updateProduct);
+productRouter.post('/restock', adminAuth, restockProduct);
+productRouter.get('/list', listProducts)
 
-module.exports = router;
+export default productRouter

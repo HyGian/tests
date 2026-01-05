@@ -1,61 +1,39 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const session = require('express-session');
-const { connectRedis } = require('./config/redis');
-const http = require('http');
-const SocketServer = require('./socket/socketServer');
-const initRoutes = require('./routes/index');
-const passport = require('./config/passport');
-const dotenv = require('dotenv'); 
+import express from 'express'
+import cors from 'cors'
+import 'dotenv/config'
+import connectDB from './config/connectDB.js'
+import connectCloudinary from './config/cloudinary.js'
+import userRouter from './routes/user.js'
+import productRouter from './routes/Product.js'
+import cartRouter from './routes/cart.js'
+import orderRouter from './routes/Order.js'
+import couponRouter from './routes/coupon.js'
+import vnpayRouter from './routes/vnpay.js'
+import chatbotRouter from './routes/chatbot.js'
+import categoryRouter from './routes/category.js'
 
-dotenv.config(); 
+//App Config
+const app = express()
+const port = process.env.PORT || 4000
+connectDB()
+connectCloudinary()
 
-const app = express();
-const server = http.createServer(app);
+//Middleware
+app.use(express.json())
+app.use(cors())
 
-app.use(express.json()); 
-app.use(express.urlencoded({ extended: true }));
+// api endpoints
+app.use('/api/user', userRouter)
+app.use('/api/product', productRouter)
+app.use('/api/cart', cartRouter)
+app.use('/api/order', orderRouter)
+app.use('/api/coupon', couponRouter)
+app.use('/api/vnpay', vnpayRouter)
+app.use('/api/chatbot', chatbotRouter)
+app.use('/api/category', categoryRouter)
 
+app.get('/', (req, res) => {
+    res.send("API Working")
+})
 
-const connectDB = async () => {
-    try {
-        const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/Ecommerce_System');
-
-        console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
-
-
-        require('./models/user');
-        require('./models/admin');
-        require('./models/category');
-        require('./models/product');
-        require('./models/review');
-        require('./models/shippingaddress');
-        require('./models/order');
-        require('./models/customersupport');
-        
-        console.log(' All Models Loaded Successfully');
-        
-    } catch (error) {
-        console.error(` Database Error: ${error.message}`);
-        process.exit(1); 
-    }
-};
-
-// Chạy kết nối DB
-connectDB();
-
-// Khởi tạo Socket
-const socketServer = new SocketServer(server);
-
-// Khởi tạo Routes
-initRoutes(app);
-
-const PORT = process.env.PORT || 8888;
-
-server.listen(PORT, () => { 
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Socket.IO ready`);
-    console.log(`Client URL: ${process.env.CLIENT_URL || 'http://localhost:5173'}`);
-});
-
-module.exports = { app, server, socketServer };
+app.listen(port, () => console.log('Server started on PORT : ' + port))

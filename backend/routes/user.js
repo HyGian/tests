@@ -1,12 +1,16 @@
-const express = require('express');
-const verifyToken = require('../middlewares/verifyToken');
-const userController = require('../controllers/user');
+import express from "express";
+import { loginUser, registerUser, adminLogin, forgotPassword, resetPassword, googleLogin, listUsers, deleteUser } from "../controllers/user.js";
+import adminAuth from "../middleware/adminAuth.js";
 
-const router = express.Router();
+const userRouter = express.Router();
 
-router.use(verifyToken);
-router.get('/get-current', userController.getCurrent);
-router.put('/', userController.updateUserController);
-router.post('/Contact', userController.getContactcontroller);
+userRouter.post('/register', registerUser)
+userRouter.post('/login', loginUser)
+userRouter.post('/admin', adminLogin)
+userRouter.post('/forgot-password', forgotPassword)
+userRouter.post('/reset-password', resetPassword)
+userRouter.post('/google-login', googleLogin)
+userRouter.get('/list', adminAuth, listUsers)
+userRouter.post('/delete', adminAuth, deleteUser)
 
-module.exports = router;
+export default userRouter;

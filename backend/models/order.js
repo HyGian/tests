@@ -1,77 +1,16 @@
-const mongoose = require('mongoose');
-
-const orderItemSchema = new mongoose.Schema({
-    product: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product',
-        required: true
-    },
-    size: {
-        type: String,
-        default: ''
-    },
-    quantity: {
-        type: Number,
-        required: true,
-        min: 1
-    },
-    price: {
-        type: Number,
-        required: true
-    },
-    totalPrice: {
-        type: Number,
-        required: true
-    },
-    imageUrl: {
-        type: String,
-        default: ''
-    },
-    productName: {
-        type: String,
-        required: true
-    }
-}, {
-    _id: true, 
-    timestamps: false
-});
+import mongoose from 'mongoose';
 
 const orderSchema = new mongoose.Schema({
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    items: [orderItemSchema],
-    status: {
-        type: String,
-        enum: ['await', 'Order Successful', 'Cancel', 'Processing', 'Shipped', 'Delivered'],
-        default: 'await'
-    },
-    postalCode: {
-        type: String,
-        default: ''
-    },
-    totalAmount: {
-        type: Number,
-        required: true,
-        default: 0
-    },
-    shippingAddress: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'ShippingAddress'
-    }
-}, {
-    timestamps: true
-});
+    userId: { type: String, required: true },
+    items: { type: Array, required: true },
+    amount: { type: Number, required: true },
+    address: { type: Object, required: true },
+    status: { type: String, required: true, default: 'Order Placed' },
+    paymentMethod: { type: String, required: true },
+    payment: { type: Boolean, required: true, default: false },
+    date: { type: Number, required: true },
+    couponCode: { type: String, default: null }
+}, { timestamps: true });
 
-orderSchema.pre('save', async function () {
-    this.totalAmount = this.items.reduce((total, item) => total + item.totalPrice, 0);
-});
-
-
-orderItemSchema.virtual('calculateTotalPrice').get(function() {
-    return this.price * this.quantity;
-});
-
-module.exports = mongoose.models.Order || mongoose.model('Order', orderSchema)
+const orderModel = mongoose.models.order || mongoose.model('order', orderSchema);
+export default orderModel;

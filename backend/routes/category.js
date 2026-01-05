@@ -1,8 +1,17 @@
-const express = require('express');
-const categoryController = require('../controllers/category');
-const { cacheMiddleware } = require('../middlewares/cache');
-const router = express.Router();
+import express from 'express'
+import { addCategory, listCategories, removeCategory, addSubCategory, listSubCategories, removeSubCategory } from '../controllers/category.js'
+import adminAuth from '../middleware/adminAuth.js';
 
-router.get('/all', cacheMiddleware('categories_all', 7200), categoryController.getCategories);
+const categoryRouter = express.Router();
 
-module.exports = router;
+// Category Routes
+categoryRouter.post('/add', adminAuth, addCategory);
+categoryRouter.get('/list', listCategories);
+categoryRouter.post('/remove', adminAuth, removeCategory);
+
+// SubCategory Routes
+categoryRouter.post('/sub/add', adminAuth, addSubCategory);
+categoryRouter.get('/sub/list', listSubCategories);
+categoryRouter.post('/sub/remove', adminAuth, removeSubCategory);
+
+export default categoryRouter;
