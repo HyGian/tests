@@ -5,17 +5,19 @@ const shippingAddressSchema = new mongoose.Schema({
     fullName: { type: String, required: true },
     phoneNumber: { type: String, required: true },
     addressLine1: { type: String, required: true },
-    addressLine2: { type: String, default: '' },
     city: { type: String, required: true },
+    postalCode: { type: String, required: true, unique: true },
+
     status: { 
         type: String, 
-        enum: ['await', 'Order Successful', 'Cancel'], 
+        enum: ['await', 'pending', 'Order Successful', 'Cancel'],
         default: 'await' 
     },
-    postalCode: { type: String, required: true, unique: true },
-    sessionId: { type: String, default: '' }
+    sessionId: { type: String, default: '' },
+    zalopayAppTransId: { type: String, default: '' },
+    refundId: { type: String, default: '' }
 }, {
     timestamps: true
 });
 
-module.exports = mongoose.models.ShippingAddress || mongoose.model('ShippingAddress', shippingAddressSchema);
+module.exports = mongoose.model('ShippingAddress', shippingAddressSchema);

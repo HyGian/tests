@@ -1,87 +1,91 @@
-const paymentService = require('../services/payment');
+const ZaloPayService = require('../services/payment');
 
-const checkout = async (req, res, next) => {
-    const { amount } = req.body;
-
-    if (typeof amount !== 'number' || amount <= 0) {
-        return res.status(400).json({
-            err: 1,
-            msg: 'Invalid amount'
-        });
-    }
-
+const checkout = async (req, res) => {
     try {
-        const response = await paymentService.createCheckoutSession(req.body);
-        return res.status(201).json(response);
+        const { amount, postalCode } = req.body;
+        
+        if (!amount || !postalCode) {
+            return res.status(400).json({
+                err: 1,
+                msg: 'Missing amount or postalCode'
+            });
+        }
+
+        const result = await ZaloPayService.createOrder(amount, postalCode);
+        
+        return res.json({
+            err: result.success ? 0 : 1,
+            msg: result.success ? 'OK' : 'Failed',
+            data: result
+        });
+
     } catch (error) {
+        console.error('Checkout error:', error.message);
         return res.status(500).json({
             err: -1,
-            msg: 'Failed at payment controller',
-            error: error.message
+            msg: error.message
         });
     }
 };
 
-const exportPayments = async (req, res, next) => {
+const checkStatus = async (req, res) => {
     try {
-        const response = await paymentService.exportPayments();
-        return res.status(200).json(response);
+        const { sessionId } = req.params;
+        const result = await ZaloPayService.checkStatus(sessionId);
+        
+        return res.json({
+            err: result.status === 'success' ? 0 : 1,
+            msg: result.message,
+            data: result
+        });
+
     } catch (error) {
+        console.error('Check status error:', error.message);
         return res.status(500).json({
             err: -1,
-            msg: 'Failed at payment controller',
-            error: error.message
+            msg: error.message
         });
     }
 };
 
-const getPaymentIntentId = async (req, res, next) => {
-    const { sessionId } = req.params;
-
-    if (!sessionId) {
-        return res.status(400).json({
-            err: 1,
-            msg: 'Session ID is required'
-        });
-    }
-
+const refund = async (req, res) => {
     try {
-        const response = await paymentService.getPaymentIdServices(sessionId);
-        return res.status(200).json(response);
+        const { id: postalCode } = req.params;
+        const result = await ZaloPayService.refund(postalCode);
+        
+        return res.json({
+            err: result.success ? 0 : 1,
+            msg: result.success ? 'Refund successful' : 'Refund failed',
+            data: result
+        });
+
     } catch (error) {
+        console.error('Refund error:', error.message);
         return res.status(500).json({
             err: -1,
-            msg: 'Failed at payment controller',
-            error: error.message
+            msg: error.message
         });
     }
 };
 
-const refundPayment = async (req, res, next) => {
-    const { id: postalCode } = req.params;
-
-    if (!postalCode) {
-        return res.status(400).json({
-            err: 1,
-            msg: 'Postal code is required'
-        });
-    }
-
+const callback = async (req, res) => {
     try {
-        const response = await paymentService.PostRefundPayment(postalCode);
-        return res.status(200).json(response);
+        const { data, mac } = req.body;
+        const result = await ZaloPayService.handleCallback(data, mac);
+        return res.json(result);
+
     } catch (error) {
+        console.error('Callback error:', error.message);
         return res.status(500).json({
-            err: -1,
-            msg: 'Failed at payment controller',
-            error: error.message
+            return_code: -1,
+            return_message: error.message
         });
     }
 };
 
 module.exports = {
     checkout,
-    exportPayments,
-    getPaymentIntentId,
-    refundPayment
+    checkStatus,
+    refund,
+    callback
 };

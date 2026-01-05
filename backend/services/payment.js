@@ -1,135 +1,222 @@
-const stripe = require('../config/stripe');
+const axios = require('axios');
+const zpConfig = require('../config/zalopay');
 const ShippingAddress = require('../models/shippingaddress');
 const Order = require('../models/order');
-require('dotenv').config();
 
-const createCheckoutSession = (total) => new Promise(async (resolve, reject) => {
-    const { amount, id } = total;
-    try {
-        const session = await stripe.checkout.sessions.create({
-            line_items: [
-                {
-                    price_data: {
-                        currency: "vnd",
-                        product_data: {
-                            name: "WEB_SHOPPING",
-                        },
-                        unit_amount: amount,
-                    },
-                    quantity: 1,
-                },
-            ],
-            mode: "payment",
-            success_url: `${process.env.CLIENT_URL}/he-thong/successful/${id}`,
-            cancel_url: `${process.env.CLIENT_URL}/he-thong/cancel`,
-        });
+class ZaloPayService {
 
-        const existingRecord = await ShippingAddress.findOne({ postalCode: id });
-        
-        if (existingRecord) {
-            await ShippingAddress.findByIdAndUpdate(
-                existingRecord._id,
-                {
-                    sessionId: session.id,
-                    status: 'Order Successful'
-                }
-            );
-        }
+    static async createOrder(amount, postalCode) {
+        try {
+            if (!amount || amount <= 0) throw new Error('Invalid amount');
+            if (!postalCode) throw new Error('Missing postal code');
+            if (!zpConfig.app_id || !zpConfig.key1) {
+                throw new Error('ZaloPay not configured');
+            }
 
-        resolve({
-            err: session ? 0 : 1,
-            msg: session ? 'OK' : 'Failed.',
-            response: session
-        });
-    } catch (error) {
-        reject(error);
-    }
-});
+            const appTransId = this.generateAppTransId();
+            const items = [{
+                itemid: "ECOMMERCE",
+                itemname: "Thanh toán đơn hàng",
+                itemprice: Math.round(amount),
+                itemquantity: 1
+            }];
 
-const exportPayments = () => new Promise(async (resolve, reject) => {
-    try {
-        const payments = await stripe.paymentIntents.list({
-            limit: 100,
-        });
+            const order = {
+                app_id: zpConfig.app_id,
+                app_user: `user_${Date.now()}`,
+                app_trans_id: appTransId,
+                app_time: Date.now(),
+                amount: Math.round(amount),
+                item: JSON.stringify(items),
+                embed_data: JSON.stringify({
+                    redirecturl: `${process.env.CLIENT_URL}/he-thong/successful/${postalCode}`,
+                    postalcode: postalCode
+                }),
+                description: `Order #${postalCode}`,
+                bank_code: "",
+                callback_url: `${process.env.SERVER_URL}/api/v1/payment/zalopay-callback`
+            };
 
-        const formattedPayments = payments.data.map((payment) => ({
-            id: payment.id,
-            amount: payment.amount,
-            currency: payment.currency.toUpperCase(),
-            status: payment.status,
-            description: payment.description,
-            created: new Date(payment.created * 1000).toISOString(),
-        }));
+            const macData = [
+                order.app_id,
+                order.app_trans_id,
+                order.app_user,
+                order.amount,
+                order.app_time,
+                order.embed_data,
+                order.item
+            ].join('|');
+            
+            order.mac = zpConfig.generateMAC(macData, 1);
 
-        resolve({
-            err: formattedPayments ? 0 : 1,
-            msg: formattedPayments ? 'OK' : 'Failed',
-            response: formattedPayments
-        });
-    } catch (error) {
-        reject(error);
-    }
-});
-
-const getPaymentIdServices = (sessionId) => new Promise(async (resolve, reject) => {
-    try {
-        const session = await stripe.checkout.sessions.retrieve(sessionId);
-        const paymentIntentId = session.payment_intent;
-
-        resolve({
-            err: paymentIntentId ? 0 : 1,
-            msg: paymentIntentId ? 'OK' : 'Failed',
-            paymentIntentId
-        });
-    } catch (error) {
-        reject(error);
-    }
-});
-
-const PostRefundPayment = (postalCode) => new Promise(async (resolve, reject) => {
-    try {
-        const shippingAddress = await ShippingAddress.findOne({ postalCode });
-        
-        if (!shippingAddress) {
-            return resolve({
-                err: 1,
-                msg: 'Shipping address not found.'
+            const response = await axios.post(`${zpConfig.endpoint}/create`, order, {
+                timeout: 30000,
+                headers: { 'Content-Type': 'application/json' }
             });
+
+            if (response.data.return_code === 1) {
+                await ShippingAddress.findOneAndUpdate(
+                    { postalCode },
+                    { 
+                        sessionId: appTransId,
+                        zalopayAppTransId: appTransId,
+                        status: 'pending'
+                    }
+                );
+
+                return {
+                    success: true,
+                    order_url: response.data.order_url,
+                    app_trans_id: appTransId,
+                    zp_trans_token: response.data.zp_trans_token
+                };
+            } else {
+                throw new Error(response.data.return_message || 'Create order failed');
+            }
+
+        } catch (error) {
+            console.error('ZaloPay createOrder error:', error.message);
+            throw error;
         }
-
-        await ShippingAddress.findByIdAndUpdate(
-            shippingAddress._id,
-            { status: 'Cancel' }
-        );
-
-        await Order.updateMany(
-            { postalCode: postalCode },
-            { status: 'Cancel' }
-        );
-
-        const session = await stripe.checkout.sessions.retrieve(shippingAddress.sessionId);
-        const paymentIntentId = session.payment_intent;
-        const refundAmount = Math.floor(session.amount_total * 0.9);
-
-        const refund = await stripe.refunds.create({
-            payment_intent: paymentIntentId,
-            amount: refundAmount
-        });
-
-        resolve({
-            err: refund ? 0 : 1,
-            msg: refund ? 'OK' : 'Failed',
-            refundId: refund.id,
-            refundAmount: refundAmount
-        });
-    } catch (error) {
-        reject(error);
     }
-});
 
-module.exports = {
-    createCheckoutSession,
-    exportPayments,
-    getPaymentIdServices,
-    PostRefundPayment
-};
+    static async checkStatus(appTransId) {
+        try {
+            const params = {
+                app_id: zpConfig.app_id,
+                app_trans_id: appTransId,
+                mac: ""
+            };
+
+            const macData = [params.app_id, params.app_trans_id, zpConfig.key1].join('|');
+            params.mac = zpConfig.generateMAC(macData, 1);
+
+            const response = await axios.post(`${zpConfig.endpoint}/query`, params, {
+                timeout: 15000
+            });
+
+            return {
+                status: response.data.return_code === 1 ? 'success' : 'failed',
+                message: response.data.return_message,
+                data: response.data
+            };
+
+        } catch (error) {
+            console.error('Check status error:', error.message);
+            throw error;
+        }
+    }
+
+    static async refund(postalCode) {
+        try {
+
+            const shipping = await ShippingAddress.findOne({ postalCode });
+            if (!shipping || !shipping.zalopayAppTransId) {
+                throw new Error('Order not found');
+            }
+
+            const order = await Order.findOne({ postalCode, status: 'Order Successful' });
+            if (!order) throw new Error('Order not found');
+
+            const refundAmount = Math.round(order.totalAmount * 0.9);
+            const mRefundId = `REFUND_${postalCode}_${Date.now()}`;
+
+            const params = {
+                app_id: zpConfig.app_id,
+                zp_trans_id: shipping.zalopayAppTransId,
+                m_refund_id: mRefundId,
+                amount: refundAmount,
+                timestamp: Date.now(),
+                description: `Refund order ${postalCode}`,
+                mac: ""
+            };
+
+            const macData = [
+                params.app_id,
+                params.zp_trans_id,
+                params.amount,
+                params.description,
+                params.timestamp
+            ].join('|');
+            
+            params.mac = zpConfig.generateMAC(macData, 2);
+
+            const response = await axios.post(`${zpConfig.endpoint}/refund`, params, {
+                timeout: 30000
+            });
+
+            if (response.data.return_code === 1) {
+                // Cập nhật DB
+                await ShippingAddress.updateOne(
+                    { postalCode },
+                    { status: 'Cancel', refundId: mRefundId }
+                );
+
+                await Order.updateMany(
+                    { postalCode },
+                    { status: 'Cancel' }
+                );
+
+                return {
+                    success: true,
+                    refund_id: response.data.refund_id,
+                    amount: refundAmount
+                };
+            } else {
+                throw new Error(response.data.return_message || 'Refund failed');
+            }
+
+        } catch (error) {
+            console.error('Refund error:', error.message);
+            throw error;
+        }
+    }
+
+    static async handleCallback(data, mac) {
+        try {
+
+            if (!zpConfig.verifyCallback(data, mac)) {
+                throw new Error('Invalid MAC');
+            }
+
+            const callbackData = JSON.parse(data);
+
+            const shipping = await ShippingAddress.findOne({
+                zalopayAppTransId: callbackData.app_trans_id
+            });
+
+            if (!shipping) {
+                console.warn('Order not found:', callbackData.app_trans_id);
+                return { return_code: 1 };
+            }
+
+            if (callbackData.return_code === 1) {
+                await ShippingAddress.updateOne(
+                    { _id: shipping._id },
+                    { status: 'Order Successful' }
+                );
+
+                await Order.updateMany(
+                    { postalCode: shipping.postalCode },
+                    { status: 'Order Successful' }
+                );
+            }
+
+            return { return_code: 1, return_message: 'success' };
+
+        } catch (error) {
+            console.error('Callback error:', error.message);
+            return { return_code: -1, return_message: error.message };
+        }
+    }
+
+    static generateAppTransId() {
+        const date = new Date();
+        const yymmdd = date.getFullYear().toString().slice(-2) + 
+                      String(date.getMonth() + 1).padStart(2, '0') + 
+                      String(date.getDate()).padStart(2, '0');
+        return `${yymmdd}_${Date.now()}`;
+    }
+}
+
+module.exports = ZaloPayService;
