@@ -19,6 +19,9 @@ const ShopContextProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [discount, setDiscount] = useState(0);
+  const [category, setCategory] = useState([]); 
+  const [subCategory, setSubCategory] = useState([]);
+  const [sortType, setSortType] = useState('relevant');
 
 
   const [categories, setCategories] = useState([]);
@@ -262,7 +265,13 @@ const ShopContextProvider = ({ children }) => {
     setAppliedCoupon,
     setDiscount,
     categories,
-    subCategories
+    subCategories,
+    category, 
+    setCategory,
+    subCategory, 
+    setSubCategory,
+    sortType, 
+    setSortType
   }; 
 
 

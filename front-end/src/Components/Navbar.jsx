@@ -38,9 +38,13 @@ const Navbar = () => {
         </NavLink>
       </ul>
 
-      <div className="flex items-center gap-6">
+<div className="flex items-center gap-6">
+        {/* ĐOẠN SỬA ĐỔI: ICON TÌM KIẾM */}
         <img
-          onClick={() => setShowSearch(true)}
+          onClick={() => {
+            setShowSearch(true);     // Mở trạng thái tìm kiếm
+            navigate('/collection'); // Điều hướng về trang Collection để SearchBar hiện ra
+          }}
           src={assets.search_icon}
           alt="search"
           className="w-5 cursor-pointer"

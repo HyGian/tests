@@ -62,6 +62,7 @@ app.use(cors())
 
 chatSocket(io);
 
+app.set('trust proxy', 1);
 app.use('/api/user/login', securityLimiter);
 app.use('/api/user/register', securityLimiter);
 app.use('/api/user', user)
