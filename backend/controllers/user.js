@@ -40,9 +40,6 @@ const loginUser = async (req, res) => {
     }
 };
 
-
-
-
 // Route for user register
 const registerUser = async (req, res) => {
     try {
@@ -300,4 +297,45 @@ const deleteUser = async (req, res) => {
     }
 };
 
-export { loginUser, registerUser, adminLogin, forgotPassword, resetPassword, googleLogin, listUsers, deleteUser }
+// --- HÀM MỚI 1 ---
+// Lấy ID của Admin đang đăng nhập dựa trên token (Dùng cho Admin Frontend)
+const getAdminInfo = async (req, res) => {
+    try {
+        res.json({ success: true, adminId: req.user._id });
+    } catch (error) {
+        console.error("Get Admin Info Error:", error);
+        res.json({ success: false, message: error.message });
+    }
+};
+
+// --- HÀM MỚI 2 (ĐANG THIẾU) ---
+// Lấy Profile người dùng hiện tại (Dùng cho User Frontend - Fix lỗi 404)
+const getUserProfile = async (req, res) => {
+    try {
+        // userId được gán từ middleware authUser (auth.js)
+        const { userId } = req.body; 
+        const user = await userModel.findById(userId).select("-password");
+
+        if (!user) {
+            return res.json({ success: false, message: "User not found" });
+        }
+
+        res.json({ success: true, user });
+    } catch (error) {
+        console.error("Get Profile Error:", error);
+        res.json({ success: false, message: error.message });
+    }
+};
+
+export { 
+    loginUser, 
+    registerUser, 
+    adminLogin, 
+    forgotPassword, 
+    resetPassword, 
+    googleLogin, 
+    listUsers, 
+    deleteUser,
+    getAdminInfo,
+    getUserProfile // Nhớ export hàm này
+}
