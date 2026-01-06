@@ -3,6 +3,9 @@ import http from 'http'; //
 import { Server } from 'socket.io'; //
 import cors from 'cors'
 import 'dotenv/config'
+import { createClient } from 'redis';
+import RedisStore from 'rate-limit-redis';
+import rateLimit from 'express-rate-limit';
 import connectDB from './config/mongodb.js'
 import connectCloudinary from './config/cloudinary.js'
 
@@ -36,11 +39,31 @@ const io = new Server(server, {
 connectDB()
 connectCloudinary()
 
+const redisClient = createClient();
+await redisClient.connect();
+
+const securityLimiter = rateLimit({
+    store: new RedisStore({
+        sendCommand: (...args) => redisClient.sendCommand(args),
+    }),
+    windowMs: 5 * 60 * 1000, 
+    max: 5, 
+    handler: (req, res) => {
+        res.status(429).json({
+            success: false,
+            message: "Đợi 5 phút nhé"
+        });
+    }
+});
+
+
 app.use(express.json())
 app.use(cors())
 
 chatSocket(io);
 
+app.use('/api/user/login', securityLimiter);
+app.use('/api/user/register', securityLimiter);
 app.use('/api/user', user)
 app.use('/api/product', product)
 app.use('/api/cart', cart)

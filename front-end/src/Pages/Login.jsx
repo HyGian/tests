@@ -15,6 +15,12 @@ const Login = () => {
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+
+    if (currentState === 'Sign Up' && !passwordRegex.test(password)) {
+        toast.error("Mật khẩu phải có ít nhất 6 ký tự gồm cả chữ và số.");
+        return;
+    }
     try {
       if (currentState === 'Sign Up') {
         const response = await axios.post(backendUrl + '/api/user/register', { name, email, password });
@@ -35,7 +41,12 @@ const Login = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.message);
+      if (error.response && error.response.status === 429) {
+            const serverMessage = error.response.data.message; 
+            toast.error(serverMessage);
+        } else {
+            toast.error(error.message);
+        }
     }
   };
 

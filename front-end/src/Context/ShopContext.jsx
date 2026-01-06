@@ -39,6 +39,8 @@ const ShopContextProvider = ({ children }) => {
 
     setCartItems(updatedCart);
     localStorage.setItem('cartItems', JSON.stringify(updatedCart));
+    toast.success('Đã thêm sản phẩm vào giỏ hàng');
+
 
     if (token) {
       try {
@@ -73,8 +75,8 @@ const ShopContextProvider = ({ children }) => {
         toast.error(response.data.message);
       }
     } catch (error) {
-      // console.error(error);
-      // toast.error("Order failed. Please try again.");
+      console.error(error);
+      toast.error("Order failed. Please try again.");
     }
   };
   
@@ -197,6 +199,8 @@ const ShopContextProvider = ({ children }) => {
       const savedCart = localStorage.getItem('cartItems');
       if (savedCart) {
         setCartItems(JSON.parse(savedCart));
+      } else {
+        setCartItems({});
       }
     }
   }, [token]);

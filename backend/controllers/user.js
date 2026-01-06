@@ -9,8 +9,6 @@ const createToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET);
 }
 
-//Route for user login
-
 const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -58,8 +56,13 @@ const registerUser = async (req, res) => {
         if (!validator.isEmail(email)) {
             return res.json({ success: false, message: "Please enter a valid email" })
         }
-        if (password.length < 8) {
-            return res.json({ success: false, message: "Please enter a strong password" })
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+
+        if (!passwordRegex.test(password)) {
+            return res.json({ 
+                success: false, 
+                message: "Mật khẩu phải có ít nhất 6 ký tự gồm cả chữ và số." 
+            });
         }
 
         const salt = await bcrypt.genSalt(10)
