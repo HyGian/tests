@@ -1,12 +1,18 @@
 import { v2 as cloudinary } from "cloudinary"
 import productModel from "../models/product.js"
+import { redisClient } from "../config/redis.js"; 
+
+const clearProductCache = async () => {
+    try {
+        await redisClient.del('products_list');
+    } catch (error) {
+        console.error("Redis Clear Cache Error:", error);
+    }
+};
 
 const addProduct = async (req, res) => {
-
     try {
-
         const { name, description, price, category, subCategory, sizes, bestseller } = req.body
-
         const image1 = req.files.image1 && req.files.image1[0];
         const image2 = req.files.image2 && req.files.image2[0];
         const image3 = req.files.image3 && req.files.image3[0];
@@ -32,9 +38,12 @@ const addProduct = async (req, res) => {
             image: imagesUrl,
             date: Date.now()
         }
-        console.log(productData)
+
         const product = new productModel(productData);
         await product.save();
+
+        // XÓA CACHE sau khi thêm sản phẩm mới
+        await clearProductCache();
 
         res.json({ success: true, message: "Product Added" })
 
@@ -42,19 +51,28 @@ const addProduct = async (req, res) => {
         console.error(error);
         res.json({ success: false, message: error.message });
     }
-
 }
 
 const listProducts = async (req, res) => {
-
     try {
+        const cacheKey = 'products_list';
+
+        // 1. Kiểm tra dữ liệu trong Redis
+        const cachedProducts = await redisClient.get(cacheKey);
+        if (cachedProducts) {
+            return res.json({ success: true, products: JSON.parse(cachedProducts), source: 'redis' });
+        }
+
         const products = await productModel.find({});
-        res.json({ success: true, products })
+
+        // 3. Lưu vào Redis thời gian  là 1 h
+        await redisClient.setEx(cacheKey, 3600, JSON.stringify(products));
+
+        res.json({ success: true, products, source: 'database' })
     } catch (error) {
         console.log(error)
         res.json({ success: false, message: error.message })
     }
-
 }
 
 const removeProduct = async (req, res) => {
@@ -65,6 +83,10 @@ const removeProduct = async (req, res) => {
         }
 
         await productModel.findByIdAndDelete(req.body.id);
+
+        // XÓA CACHE sau khi xóa sản phẩm
+        await clearProductCache();
+
         res.json({ success: true, message: "Product Removed" });
     } catch (error) {
         console.log(error);
@@ -72,18 +94,16 @@ const removeProduct = async (req, res) => {
     }
 };
 
-
 const singleProduct = async (req, res) => {
-
     try {
         const { productId } = req.body
+
         const product = await productModel.findById(productId)
         res.json({ success: true, product })
     } catch (error) {
         console.log(error);
         res.json({ success: false, message: error.message })
     }
-
 }
 
 const updateProduct = async (req, res) => {
@@ -110,6 +130,8 @@ const updateProduct = async (req, res) => {
 
         const updatedProduct = await productModel.findByIdAndUpdate(id, updateData, { new: true });
 
+        await clearProductCache();
+
         res.json({ success: true, message: "Product Updated", product: updatedProduct });
     } catch (error) {
         console.error("Update Product Error:", error);
@@ -117,11 +139,9 @@ const updateProduct = async (req, res) => {
     }
 };
 
-// Restock: Add quantities to an existing product's sizes
 const restockProduct = async (req, res) => {
     try {
         const { productId, sizes } = req.body;
-        // sizes should be [{size: "S", quantity: 10}, {size: "M", quantity: 5}]
 
         if (!productId || !sizes) {
             return res.status(400).json({ success: false, message: "Product ID and sizes are required" });
@@ -132,21 +152,21 @@ const restockProduct = async (req, res) => {
             return res.status(404).json({ success: false, message: "Product not found" });
         }
 
-        // For each size in the request, add quantity to existing or add new size
         const parsedSizes = typeof sizes === 'string' ? JSON.parse(sizes) : sizes;
 
         for (const newSize of parsedSizes) {
             const existingSize = product.sizes.find(s => s.size === newSize.size);
             if (existingSize) {
-                // Add to existing size
                 existingSize.quantity += newSize.quantity;
             } else {
-                // Add new size
                 product.sizes.push(newSize);
             }
         }
 
         await product.save();
+
+ 
+        await clearProductCache();
 
         res.json({ success: true, message: "Stock Added Successfully", product });
     } catch (error) {
