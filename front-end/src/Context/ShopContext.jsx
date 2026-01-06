@@ -3,10 +3,12 @@ import { createContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { io } from 'socket.io-client';
 
 export const ShopContext = createContext();
 
 const ShopContextProvider = ({ children }) => {
+  
   const currency = '₫';
   const delivery_fee = 30000;
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -19,15 +21,38 @@ const ShopContextProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [discount, setDiscount] = useState(0);
+  const [userData, setUserData] = useState(null);
+  const [socket, setSocket] = useState(null);
   const [category, setCategory] = useState([]); 
   const [subCategory, setSubCategory] = useState([]);
   const [sortType, setSortType] = useState('relevant');
+
 
 
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
 
   const navigate = useNavigate();
+  const fetchUserProfile = async () => {
+    if (!token) return;
+    try {
+      const response = await axios.get(backendUrl + '/api/user/profile', { headers: { token } });
+      if (response.data.success) {
+        setUserData(response.data.user);
+      }
+    } catch (error) {
+      console.error("Lỗi lấy profile:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (token) {
+      fetchUserProfile();
+      const newSocket = io(backendUrl);
+      setSocket(newSocket);
+      return () => newSocket.disconnect();
+    }
+  }, [token]);
 
   const addToCart = async (itemId, size) => {
     if (!size) {
@@ -266,6 +291,8 @@ const ShopContextProvider = ({ children }) => {
     setDiscount,
     categories,
     subCategories,
+    userData,
+    socket,
     category, 
     setCategory,
     subCategory, 

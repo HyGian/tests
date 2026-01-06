@@ -14,6 +14,7 @@ import Category from './pages/Category';
 import Login from './components/Login';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Chat from './pages/Chat'
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL;
 export const currency = "₫";
@@ -47,6 +48,8 @@ const App = () => {
                 <Route path='/coupons' element={<Coupons token={token} />} />
                 <Route path='/users' element={<Users token={token} />} />
                 <Route path='/category' element={<Category token={token} />} />
+                <Route path='/chat' element={<Chat token={token} />} />
+                
               </Routes>
             </div>
           </div>

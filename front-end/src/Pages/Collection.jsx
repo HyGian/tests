@@ -38,7 +38,6 @@ const Collection = () => {
 
     let productsCopy = [...products]; // Tạo bản sao để không ảnh hưởng mảng gốc
 
-    // 1. Lọc theo từ khóa tìm kiếm
     if (showSearch && search) {
       productsCopy = productsCopy.filter((item) =>
         item.name.toLowerCase().includes(search.toLowerCase().trim())

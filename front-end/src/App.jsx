@@ -19,6 +19,7 @@ import SearchBar from './Components/SearchBar';
 import ChatWidget from './Components/ChatWidget';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ChatAdmin from './Components/ChatAdmin';
 
 console.log(toast);
 
@@ -29,8 +30,10 @@ function App() {
 
       <Navbar />
       <SearchBar />
+      <ChatAdmin />
       <ScrollToTop />
       <ChatWidget />
+      
 
       <Routes>
         <Route path="/" element={<Home />} />

@@ -8,6 +8,7 @@ import RedisStore from 'rate-limit-redis';
 import rateLimit from 'express-rate-limit';
 import connectDB from './config/mongodb.js'
 import connectCloudinary from './config/cloudinary.js'
+import { connectRedis } from './config/redis.js';
 
 // Import Routes
 import user from './routes/user.js'
@@ -38,6 +39,7 @@ const io = new Server(server, {
 
 connectDB()
 connectCloudinary()
+await connectRedis();
 
 const redisClient = createClient();
 await redisClient.connect();
