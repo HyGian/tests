@@ -23,6 +23,10 @@ const ShopContextProvider = ({ children }) => {
   const [discount, setDiscount] = useState(0);
   const [userData, setUserData] = useState(null);
   const [socket, setSocket] = useState(null);
+  const [category, setCategory] = useState([]); 
+  const [subCategory, setSubCategory] = useState([]);
+  const [sortType, setSortType] = useState('relevant');
+
 
 
   const [categories, setCategories] = useState([]);
@@ -288,7 +292,13 @@ const ShopContextProvider = ({ children }) => {
     categories,
     subCategories,
     userData,
-    socket
+    socket,
+    category, 
+    setCategory,
+    subCategory, 
+    setSubCategory,
+    sortType, 
+    setSortType
   }; 
 
 

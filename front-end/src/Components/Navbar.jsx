@@ -38,9 +38,12 @@ const Navbar = () => {
         </NavLink>
       </ul>
 
-      <div className="flex items-center gap-6">
+<div className="flex items-center gap-6">
         <img
-          onClick={() => setShowSearch(true)}
+          onClick={() => {
+            setShowSearch(true);     
+            navigate('/collection'); 
+          }}
           src={assets.search_icon}
           alt="search"
           className="w-5 cursor-pointer"
@@ -67,11 +70,11 @@ const Navbar = () => {
           src={assets.menu_icon}
           alt="menu"
           className="w-5 cursor-pointer sm:hidden"
-          onClick={() => setVisible(!visible)} // visibility toggle (true/false)
+          onClick={() => setVisible(!visible)} 
         />
       </div>
 
-      {/* Sidebar menu for small screens */}
+  
       <div
         className={`absolute top-0 right-0 bottom-0 overflow-hidden bg-white transition-all ${
           visible ? 'w-full' : 'w-0'

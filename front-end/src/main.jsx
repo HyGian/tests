@@ -5,8 +5,13 @@ import { BrowserRouter } from 'react-router-dom';
 import ShopContextProvider from './Context/ShopContext.jsx';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
+
 // IMPORTANT: Replace with your actual Google Client ID from Google Cloud Console
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID';
+
+if ('scrollRestoration' in window.history) {
+  window.history.scrollRestoration = 'manual';
+}
 
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>

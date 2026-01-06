@@ -8,6 +8,7 @@ import Product from './Pages/Product';
 import Cart from './Pages/Cart';
 import Login from './Pages/Login';
 import PlaceOrder from './Pages/PlaceOrder';
+import ScrollToTop from './Components/ScrollToTop';
 import Orders from './Pages/Orders';
 import Verify from './Pages/Verify';
 import ForgotPassword from './Pages/ForgotPassword';
@@ -30,6 +31,7 @@ function App() {
       <Navbar />
       <SearchBar />
       <ChatAdmin />
+      <ScrollToTop />
       <ChatWidget />
       
 
